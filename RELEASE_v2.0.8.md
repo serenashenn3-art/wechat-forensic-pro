@@ -81,7 +81,10 @@
 
 ## 链接
 
-- Commit: `e389de3` — docs(README): v2.0.8 README 头部重做 + 报告样例 + AGENTS 摘要
+- Commits (本 release):
+  - `e389de3` — docs(README): v2.0.8 README 头部重做 + 报告样例 + AGENTS 摘要
+  - `342c387` — v2.0.8: 统一版本号 + 修复 pyproject URL + manifest 排除名修正
+- Tag: [`v2.0.8`](https://github.com/serenashenn3-art/wechat-forensic-pro/releases/tag/v2.0.8)
 - 完整变更历史: [CHANGELOG.md](https://github.com/serenashenn3-art/wechat-forensic-pro/blob/main/CHANGELOG.md)
 - 上一版: [v2.0.5](https://github.com/serenashenn3-art/wechat-forensic-pro/releases/tag/v2.0.5) (实际代码已经过 v2.0.6 / v2.0.7 / v2.0.8)
 
