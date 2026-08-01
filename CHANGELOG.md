@@ -1,5 +1,28 @@
 # 变更日志
 
+## [2.0.4] - 2026-08-02
+
+### 新增 (国际化和 AI Skill 生态)
+- **双语 README**: `README.md` (English) + `README.zh-CN.md` (简体中文),双向链接
+- **5 个平台 Skill 清单**:
+  - `skills/SKILL.md` — 核心 SKILL(中英双语,所有平台共享)
+  - `skills/kimi-work/SKILL.md` — Moonshot Kimi Work 适配
+  - `skills/codex/SKILL.md` — OpenAI Codex 适配(英文)
+  - `skills/claude/SKILL.md` — Anthropic Claude 适配(英文)
+  - `skills/hermes/SKILL.md` — Nous Research Hermes 适配
+  - `skills/openclaw/SKILL.md` — OpenClaw 沙箱适配
+  - `skills/manifest.json` — 统一 manifest,供工具自动发现
+- **3 张介绍图** (SVG, GitHub 原生渲染):
+  - `assets/diagrams/overview.svg` — 整体架构图(设备 → 写保护 → 镜像 → 哈希 → 报告 → 签名 → 加密)
+  - `assets/diagrams/workflow.svg` — 5 步取证工作流
+  - `assets/diagrams/compliance.svg` — ISO 27037 / 27042 / RFC 3227 / NIST 800-86 合规框架
+- AGENTS.md / README 引用介绍图,首次访问即可直观理解
+
+### 影响
+- README 顶部增加语言切换链接
+- `skills/` 目录是新增,不影响任何现有 CLI / API
+- 介绍图为纯 SVG,无外部依赖,GitHub 直接渲染
+
 ## [2.0.3] - 2026-08-01
 
 ### 改进 (合规与文档补强)

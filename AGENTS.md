@@ -3,6 +3,9 @@
 > 通用 AI Coding Agent 操作规范(本仓库)
 > 标准依据: <https://agents.md/> (由 OpenAI 牵头,Linux Foundation 旗下 Agentic AI Foundation 维护)
 > 兼容: Claude Code · OpenAI Codex · Cursor · Windsurf · Gemini CLI · Aider · Trae · Kimi Work · Devin · Jules · Zed · Roo Code · VS Code Copilot 等 60+ 工具
+> 平台特定 Skill 清单: [skills/kimi-work/SKILL.md](skills/kimi-work/SKILL.md) · [skills/codex/SKILL.md](skills/codex/SKILL.md) · [skills/claude/SKILL.md](skills/claude/SKILL.md) · [skills/hermes/SKILL.md](skills/hermes/SKILL.md) · [skills/openclaw/SKILL.md](skills/openclaw/SKILL.md)
+
+![Workflow](assets/diagrams/workflow.svg)
 
 ---
 
