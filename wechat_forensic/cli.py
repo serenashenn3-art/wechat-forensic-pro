@@ -17,7 +17,7 @@ from .mirror import MirrorGenerator
 from .packer import Packer
 from .report import ReportGenerator
 from .scanner import Scanner
-from .uploader import Uploader
+from .uploader import Uploader, UploaderRegistry, get_config_for, load_config
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -39,7 +39,26 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--output", default="./wechat_forensic_output", help="输出目录")
     parser.add_argument("--zip-password", help="压缩密码")
     parser.add_argument(
-        "--upload", choices=["baidu", "aliyun", "none"], default="none", help="云端上传目标"
+        "--upload",
+        default="none",
+        help=(
+            "云端上传目标。内置: baidu / aliyun / s3 / webdav / sftp / local / none。"
+            " 任意第三方插件名也接受 (见 --upload-list)。"
+        ),
+    )
+    parser.add_argument(
+        "--upload-config",
+        default=None,
+        help=(
+            "上传配置文件路径 (YAML 或 JSON)。"
+            " 留空则按 $WECHAT_FORENSIC_UPLOAD_CONFIG / ~/.config/wechat-forensic/upload.yaml 查找,"
+            " 或用 $WECHAT_FORENSIC_UPLOAD_<NAME>_* 环境变量。"
+        ),
+    )
+    parser.add_argument(
+        "--upload-list",
+        action="store_true",
+        help="列出所有可用上传器 (内置 + 插件) 后退出",
     )
     parser.add_argument("--no-interactive", action="store_true", help="非交互模式")
     parser.add_argument("--case-id", help="案件编号 / 司法鉴定委托函号 (写入报告)")
@@ -57,6 +76,23 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main(argv=None) -> int:
     args = build_parser().parse_args(argv)
+
+    # 单独处理 --upload-list: 打印后即退出
+    if args.upload_list:
+        reg = UploaderRegistry()
+        print("Available uploaders:")
+        print()
+        for u in reg.list():
+            star = "*" if u["is_builtin"] else "+"
+            print(
+                f"  [{star}] {u['name']:14s}  {u['display_name']}\n"
+                f"        deps: {u['required_deps']}"
+            )
+            if u["config_schema_hint"]:
+                print(f"        config: {u['config_schema_hint']}")
+        print()
+        print("(*) builtin   (+) plugin from ~/.config/wechat-forensic/plugins/uploaders/")
+        return 0
 
     log = ForensicLogger(Config().LOG_FILE)
     operations: list = []
@@ -210,10 +246,36 @@ def main(argv=None) -> int:
         print("\n" + "-" * 70)
         print("[步骤 6/6] 云端上传")
         print("-" * 70)
-        if args.upload == "baidu":
-            success = Uploader.baidu(arc_path, log)
+        upload_ok = False
+        upload_message = ""
+        upload_remote = ""
+        upload_alg = args.upload
+
+        registry = UploaderRegistry()
+        uploader_obj = registry.get(args.upload)
+        if uploader_obj is not None:
+            # 新路径: 注册表 + 可插拔
+            full_cfg = load_config(args.upload_config)
+            cfg = get_config_for(args.upload, full_cfg)
+            result = uploader_obj.upload(arc_path, logger=log, config=cfg)
+            upload_ok = bool(result.get("success"))
+            upload_message = result.get("message", "")
+            upload_remote = result.get("remote", "")
+            upload_alg = result.get("algorithm", args.upload)
         else:
-            success = Uploader.aliyun(arc_path, log)
+            # 兜底: 旧静态方法(向后兼容)
+            if args.upload == "baidu":
+                upload_ok = Uploader.baidu(arc_path, log)
+            elif args.upload == "aliyun":
+                upload_ok = Uploader.aliyun(arc_path, log)
+            else:
+                log.error(
+                    f"未知上传器: {args.upload!r}。"
+                    f" 用 --upload-list 查看所有可用上传器。"
+                )
+                upload_message = f"未找到名为 '{args.upload}' 的上传器"
+                upload_alg = "unknown"
+
         operations.append(
             {
                 "step": "云端上传",
@@ -221,7 +283,10 @@ def main(argv=None) -> int:
                 "description": f"上传至 {args.upload}",
                 "source": arc_path,
                 "sha256": arc_hash,
-                "success": success,
+                "success": upload_ok,
+                "message": upload_message,
+                "remote": upload_remote,
+                "algorithm": upload_alg,
             }
         )
 

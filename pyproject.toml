@@ -4,13 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "wechat-forensic-pro"
-version = "2.0.2"
+version = "2.0.5"
 description = "跨平台微信聊天记录取证提取工具链"
 readme = "README.md"
 requires-python = ">=3.8"
 license = { text = "MIT" }
 authors = [{ name = "WeChat Forensic Pro Contributors" }]
-keywords = ["forensics", "wechat", "chain-of-custody", "evidence", "hashing"]
+keywords = ["forensics", "wechat", "chain-of-custody", "evidence", "hashing", "cloud-upload", "s3", "webdav", "sftp"]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Legal Industry",
@@ -33,8 +33,21 @@ dependencies = [
 crypto = ["pyzipper>=0.3.5"]
 aliyun = ["oss2>=2.18.0"]
 baidu = ["bypy>=1.8.5"]
+# v2.0.5 新增可插拔云盘适配器
+s3 = ["boto3>=1.28.0"]
+webdav = ["webdavclient3>=3.14.5"]
+sftp = ["paramiko>=3.0.0"]
+yaml = ["PyYAML>=6.0"]
+all = [
+    "pyzipper>=0.3.5",
+    "oss2>=2.18.0",
+    "bypy>=1.8.5",
+    "boto3>=1.28.0",
+    "webdavclient3>=3.14.5",
+    "paramiko>=3.0.0",
+    "PyYAML>=6.0",
+]
 dev = ["pytest>=7.0", "pytest-cov>=4.0"]
-all = ["pyzipper>=0.3.5", "oss2>=2.18.0", "bypy>=1.8.5"]
 
 [project.scripts]
 wechat-forensic = "wechat_forensic.cli:main"

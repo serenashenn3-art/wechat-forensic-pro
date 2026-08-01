@@ -1,5 +1,51 @@
 # 变更日志
 
+## [2.0.5] - 2026-08-02
+
+### 新增 (云盘上传可插拔架构)
+- **`UploaderBase` 抽象基类** — 所有上传器统一接口, `upload(file, logger, config) -> dict` 返回 `{success, message, remote, algorithm, ...}`
+- **4 个新内置适配器**:
+  - `s3` — S3 兼容协议(覆盖 AWS S3 / 腾讯 COS / 七牛 / MinIO / 阿里 OSS-S3 / Cloudflare R2 / 自建 Ceph)
+  - `webdav` — WebDAV 协议(覆盖坚果云 / Nextcloud / ownCloud / OneDrive WebDAV 模式)
+  - `sftp` — SSH 文件传输(自建 NAS / 树莓派 / 老旧服务器)
+  - `local` — 本地复制(零依赖, NAS 挂载 / USB 移动硬盘 / 第二块硬盘)
+- **零配置插件机制** — 把 .py 放到 `~/.config/wechat-forensic/plugins/uploaders/` 或 `<project>/uploaders/` 即可被自动发现, 无需 setuptools entry_points
+- **新 CLI 参数**:
+  - `--upload-config <path>` — 指定 YAML/JSON 配置文件
+  - `--upload-list` — 列出所有可用上传器(内置 + 插件)后退出
+  - `--upload` 移除 `choices` 限制, 接受任意 uploader name
+- **配置加载优先级** (高→低): CLI 参数 → `$WECHAT_FORENSIC_UPLOAD_CONFIG` → `~/.config/wechat-forensic/upload.yaml` → 内联环境变量 `WECHAT_FORENSIC_UPLOAD_<NAME>_<FIELD>=...`
+- **`LocalUploader` 校验** — 复制后自动算 SHA-256 写入 `operations[].sha256`, 司法取证证据完整性
+
+### 新增 (示例)
+- `examples/uploaders/tencent_cos.py` — 腾讯云 COS 完整插件
+- `examples/uploaders/qiniu.py` — 七牛云 Kodo 完整插件
+- `examples/uploaders/README.md` — 插件开发指南
+
+### 改进
+- 报告 `operations[].upload` 步骤新增字段: `message` / `remote` / `algorithm`(更详细的审计轨迹)
+- `Uploader.baidu/aliyun` 旧静态方法标记为 `DeprecationWarning` 但保留可用(向后兼容)
+
+### 依赖
+- 新增可选 extras: `[s3]` / `[webdav]` / `[sftp]` / `[yaml]`
+- `[all]` 现在包含全部 7 个云盘 SDK
+- 单独安装示例: `pip install wechat-forensic-pro[s3,webdav]`
+
+### 测试
+- **21 个新测试** (29 → 50, 72% 增量), 覆盖:
+  - 注册表 / 列表 / 查找
+  - 6 个内置适配器的错误处理
+  - LocalUploader 成功路径 + SHA-256 校验
+  - 插件目录发现 (含 mock 临时插件)
+  - 内置 name 优先于插件
+  - 损坏插件不应让注册表崩溃
+  - YAML / JSON / 内联环境变量三种配置来源
+  - CLI `--upload-list` 退出码
+
+### 兼容性
+- 100% 向后兼容(旧 `--upload baidu` / `aliyun` / `none` 仍可用)
+- 旧 `Uploader.baidu/aliyun` 静态方法保留, 但会发 `DeprecationWarning`, 建议迁移到 `UploaderRegistry().get("baidu").upload()`
+
 ## [2.0.4] - 2026-08-02
 
 ### 新增 (国际化和 AI Skill 生态)

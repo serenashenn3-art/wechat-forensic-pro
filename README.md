@@ -94,7 +94,8 @@ pip install -e ".[dev,all]"
 wechat-forensic [-h] [--mode {quick,forensic}] [--source SOURCE]
                 [--mirror-disk MIRROR_DISK] [--output OUTPUT]
                 [--zip-password ZIP_PASSWORD]
-                [--upload {baidu,aliyun,none}]
+                [--upload UPLOAD] [--upload-config UPLOAD_CONFIG]
+                [--upload-list]
                 [--case-id CASE_ID] [--evidence-id EVIDENCE_ID]
                 [--sign] [--no-interactive] [--version]
 ```
@@ -241,6 +242,76 @@ wechat_forensic_output/
 ```
 
 The HMAC key is read from the `WECHAT_FORENSIC_HMAC_KEY` environment variable — **set it in production**.
+
+---
+
+## Cloud Upload (v2.0.5 pluggable)
+
+The cloud-upload step is **fully extensible** since v2.0.5. Beyond the two legacy providers (Baidu, Aliyun), the tool ships with **6 built-in adapters** and an open plugin mechanism for any custom cloud.
+
+### Built-in adapters
+
+| `--upload` | Protocol / SDK | Required extra | Typical providers |
+|---|---|---|---|
+| `baidu` | `bypy` CLI | `[baidu]` | 百度网盘 |
+| `aliyun` | `oss2` | `[aliyun]` | 阿里云 OSS |
+| **`s3`** | `boto3` (S3 API) | `[s3]` | AWS S3 · 腾讯 COS · 七牛 Kodo(S3) · 阿里 OSS-S3 · MinIO · 自建 Ceph · Cloudflare R2 |
+| **`webdav`** | `webdavclient3` | `[webdav]` | 坚果云 · Nextcloud · ownCloud · OneDrive (WebDAV mode) |
+| **`sftp`** | `paramiko` | `[sftp]` | 自建 SFTP · 树莓派 NAS · 老旧服务器 |
+| **`local`** | stdlib only | (none) | NAS 挂载点 · USB 移动硬盘 · 第二块硬盘 |
+| `none` | (skip upload) | — | default |
+
+> **Tip**: 90% of "self-defined cloud" scenarios can be covered by `s3` alone — just change `endpoint_url`. Most providers (Tencent COS, Qiniu, Aliyun OSS-S3 mode, MinIO, Cloudflare R2) are S3-compatible.
+
+### Quick start: any S3-compatible cloud
+
+```yaml
+# ~/.config/wechat-forensic/upload.yaml
+s3:
+  endpoint_url: https://cos.ap-guangzhou.myqcloud.com   # 腾讯 COS
+  region: ap-guangzhou
+  bucket: example-1250000000
+  access_key: AKIDxxxxxxxxxxxxxxxxxxxx
+  secret_key: xxxxxxxxxxxxxxxxxxxxxxxx
+  prefix: wechat_forensic/
+```
+
+```bash
+wechat-forensic --upload s3 --upload-config ~/.config/wechat-forensic/upload.yaml
+```
+
+### Configuration priority (high → low)
+1. CLI flag `--upload-config <path>`
+2. Environment `$WECHAT_FORENSIC_UPLOAD_CONFIG` (file path)
+3. `~/.config/wechat-forensic/upload.yaml` (default location)
+4. Inline env vars: `WECHAT_FORENSIC_UPLOAD_<NAME>_<FIELD>=value`
+   (e.g. `WECHAT_FORENSIC_UPLOAD_S3_BUCKET=my-bucket`)
+
+### List all available uploaders
+```bash
+wechat-forensic --upload-list
+```
+
+### Plugin mechanism (any custom cloud)
+Drop a Python file into one of these two directories and it will be discovered automatically:
+- `~/.config/wechat-forensic/plugins/uploaders/` (user-level, cross-project)
+- `<project>/uploaders/` (project-level)
+
+Minimal template:
+```python
+from wechat_forensic.uploader import UploaderBase
+
+class MyCloudUploader(UploaderBase):
+    name = "my-cloud"
+    display_name = "My Company Cloud"
+    required_deps = ["my-sdk"]
+
+    def upload(self, file, logger=None, config=None):
+        # your upload logic here
+        return self._return_success("remote://path", {"extra": "info"})
+```
+
+See [`examples/uploaders/`](examples/uploaders/) for **Tencent COS** and **Qiniu Kodo** complete examples and [`examples/uploaders/README.md`](examples/uploaders/README.md) for the full guide.
 
 ---
 

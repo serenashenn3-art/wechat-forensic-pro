@@ -140,6 +140,19 @@ python -c "from wechat_forensic import __version__; print(__version__)"
 - 默认输出到 `./wechat_forensic_output`,**该目录全部内容应视为敏感证据**,已加入 `.gitignore`
 - 压缩包可选 AES 加密,推荐使用
 - **不要**把任何输出文件 commit 到仓库
+- **v2.0.5+**: 任何云盘上传插件都必须:
+  1. 继承 `UploaderBase` 并设置 `name / display_name / required_deps`
+  2. 严禁上传到未经用户授权的云端(违反 `AGENTS.md` 法律红线)
+  3. 在 `_return_failure` 中给出**可操作**的错误信息(包括如何安装依赖)
+  4. 返回值 `remote` 字段不得泄露 AK/SK/token 等敏感凭据
+
+## 可插拔云盘 (v2.0.5+)
+
+详见 [`examples/uploaders/README.md`](examples/uploaders/README.md)。
+新增云盘适配器时:
+- **优先**复用内置 `s3` / `webdav` / `sftp` 适配器(只需改 `endpoint_url` / `url` / `host`)
+- **仅当**协议特殊(如 OneDrive Graph / Google Drive)才写新插件
+- 插件放 `examples/uploaders/` 供用户参考,不要污染 `wechat_forensic/uploader.py`
 
 ## Agent 工作约定
 
