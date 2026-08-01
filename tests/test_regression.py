@@ -71,6 +71,8 @@ def test_regression_bug2_report_txt_uses_real_newlines(tmp_path):
     txt_path = ReportGenerator.generate(
         str(tmp_path),
         [{"step": "测试步骤", "timestamp": "2026-08-02", "description": "这是描述"}],
+        case_id="CASE-REG-001",
+        evidence_id="E-REG-001",
     )
     raw = open(txt_path, "rb").read()  # 用二进制读,直接看字节
 
@@ -90,6 +92,8 @@ def test_regression_bug2_report_json_also_safe(tmp_path):
     ReportGenerator.generate(
         str(tmp_path),
         [{"step": "test", "timestamp": "t", "description": "d"}],
+        case_id="CASE-REG-002",
+        evidence_id="E-REG-002",
     )
     json_path = tmp_path / "_forensic_report.json"
     data = json.loads(json_path.read_text(encoding="utf-8"))

@@ -22,15 +22,42 @@ class MirrorGenerator:
         self.log = logger
         self.chunk_size = chunk_size
 
+    @staticmethod
+    def _validate_disk_path(path: str) -> bool:
+        """校验磁盘设备路径基本合法性,防止特殊字符注入或误操作普通文件。"""
+        if not path or not isinstance(path, str):
+            return False
+        # 拒绝控制字符、换行、反引号、分号、管道等 shell 危险字符
+        dangerous = set("\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f"
+                        "\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f")
+        if any(c in dangerous for c in path):
+            return False
+        if ";" in path or "|" in path or "&" in path or "`" in path or "$" in path:
+            return False
+        # 基本格式: Unix /dev/xxx 或 Windows \\.\PhysicalDriveN / \\?\...
+        sysname = platform.system()
+        if sysname == "Windows":
+            return path.startswith("\\\\.\\") or path.startswith("\\\\?\\")
+        return path.startswith("/dev/")
+
     def mirror_disk_dd(self, source_disk: str, output_path: str) -> Dict:
         """使用 dd 命令生成位对位镜像(Linux/Mac 推荐)"""
         self.log.info(f"开始位对位镜像: {source_disk} -> {output_path}")
         self.log.evidence(f"源设备: {source_disk}")
 
+        if not self._validate_disk_path(source_disk):
+            err = f"源设备路径不合法或不是标准设备路径: {source_disk}"
+            self.log.error(err)
+            return {"success": False, "error": err}
+
+        if not output_path or not isinstance(output_path, str):
+            return {"success": False, "error": "输出路径不能为空"}
+
         if not is_admin():
             self.log.warning("生成磁盘镜像需要管理员/root 权限")
 
         start_time = datetime.datetime.now()
+        read_errors: list = []
         try:
             cmd = [
                 "dd",
@@ -44,6 +71,14 @@ class MirrorGenerator:
             result = subprocess.run(cmd, capture_output=True, text=True)
 
             end_time = datetime.datetime.now()
+
+            # dd 在 noerror 模式下 returncode 可能仍为 0,但 stderr 会记录读取错误
+            stderr_lines = (result.stderr or "").splitlines()
+            for line in stderr_lines:
+                lowered = line.lower()
+                if "error" in lowered or "failed" in lowered or "invalid" in lowered:
+                    read_errors.append(line.strip())
+                    self.log.warning(f"dd 读取错误: {line.strip()}")
 
             if result.returncode != 0:
                 self.log.error(f"dd 失败: {result.stderr}")
@@ -64,9 +99,13 @@ class MirrorGenerator:
                 "tool": "dd",
                 "operator": getpass.getuser(),
                 "hostname": platform.node(),
+                "read_errors": read_errors,
+                "read_error_count": len(read_errors),
             }
             self.log.success(f"镜像完成: {output_path}")
             self.log.evidence(f"镜像 SHA-256: {sha256}")
+            if read_errors:
+                self.log.evidence(f"dd 读取错误数: {len(read_errors)}")
             return info
         except Exception as e:
             self.log.error(f"镜像生成异常: {e}")

@@ -82,17 +82,25 @@ def sign_report(report_path: str, private_key_pem: Optional[bytes] = None) -> di
                     format=serialization.PublicFormat.SubjectPublicKeyInfo,
                 )
             ).hexdigest()
+            sig_info["non_repudiation"] = True
+            sig_info["forensic_note"] = "RSA-PSS 使用私钥签名,公钥可验证,具备不可否认性。"
         except ImportError:
             sig_info["error"] = "cryptography 库未安装,HMAC 模式需设置 WECHAT_FORENSIC_HMAC_KEY"
             sig_info["signature_b64"], sig_info["key_fingerprint_sha256"] = _hmac_sign(report_sha256)
             sig_info["signature_algorithm"] = "HMAC-SHA256"
+            sig_info["non_repudiation"] = False
+            sig_info["forensic_note"] = "HMAC 为共享密钥模式,仅提供完整性保护,不具备不可否认性。"
     else:
         try:
             sig_info["signature_b64"], sig_info["key_fingerprint_sha256"] = _hmac_sign(report_sha256)
             sig_info["signature_algorithm"] = "HMAC-SHA256"
+            sig_info["non_repudiation"] = False
+            sig_info["forensic_note"] = "HMAC 为共享密钥模式,仅提供完整性保护,不具备不可否认性。"
         except MissingHMACKeyError as e:
             sig_info["error"] = str(e)
             sig_info["signature_algorithm"] = "HMAC-SHA256"
+            sig_info["non_repudiation"] = False
+            sig_info["forensic_note"] = "HMAC 为共享密钥模式,仅提供完整性保护,不具备不可否认性。"
 
     sig_path = Path(report_path).parent / "_signature.json"
     with open(sig_path, "w", encoding="utf-8") as f:

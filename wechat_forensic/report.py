@@ -13,7 +13,29 @@ from . import __version__
 from .security import chain_of_custody_template
 
 
+class ReportValidationError(ValueError):
+    """Chain of Custody 必填字段缺失或仍为占位符。"""
+
+
 class ReportGenerator:
+    _COC_PLACEHOLDERS = {
+        "case_id": "<案件编号 / 委托函编号>",
+        "evidence_id": "<证据编号 (E001, E002, ...)>",
+    }
+
+    @classmethod
+    def _validate_coc(cls, case_id: Optional[str], evidence_id: Optional[str]) -> None:
+        """校验 Chain of Custody 核心必填字段。"""
+        missing = []
+        if not case_id or not str(case_id).strip() or str(case_id).strip() == cls._COC_PLACEHOLDERS["case_id"]:
+            missing.append("case_id (案件编号)")
+        if not evidence_id or not str(evidence_id).strip() or str(evidence_id).strip() == cls._COC_PLACEHOLDERS["evidence_id"]:
+            missing.append("evidence_id (证据编号)")
+        if missing:
+            raise ReportValidationError(
+                "Chain of Custody 必填字段缺失或仍为占位符: " + ", ".join(missing)
+            )
+
     @staticmethod
     def generate(
         output_dir: str,
@@ -33,7 +55,12 @@ class ReportGenerator:
 
         Returns:
             报告 txt 文件路径
+
+        Raises:
+            ReportValidationError: 当 case_id / evidence_id 为空或仍为占位符时。
         """
+        ReportGenerator._validate_coc(case_id, evidence_id)
+
         report = {
             "report_id": f"WFE-{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}",
             "report_version": __version__,
@@ -56,7 +83,7 @@ class ReportGenerator:
                     "RFC 3227",
                     "NIST SP 800-86",
                 ],
-                "principle": "原始证据不可修改,所有操作在副本/镜像上进行",
+                "principle": "在理想条件下,原始证据应保持只读,所有分析应在副本/镜像上进行;本工具不强制写保护,司法场景应配合硬件写保护桥使用",
                 "hash_algorithm": "SHA-256 (4MB chunk)",
                 "integrity_verification": "每个关键步骤均计算并记录 SHA-256",
             },

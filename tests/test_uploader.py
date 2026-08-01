@@ -187,6 +187,7 @@ def test_plugin_discovery_from_dir(tmp_path, monkeypatch, stub_logger):
     import wechat_forensic.uploader as uploader_mod
     monkeypatch.setattr(uploader_mod, "PLUGIN_DIR_USER", plugin_dir)
     monkeypatch.setattr(uploader_mod, "PLUGIN_DIR_PROJECT", tmp_path / "no_such_dir")
+    monkeypatch.setenv("WECHAT_FORENSIC_ENABLE_PLUGINS", "true")
 
     reg = UploaderRegistry()
     u = reg.get("fake-cloud")
@@ -211,6 +212,7 @@ def test_builtin_name_wins_over_plugin(tmp_path, monkeypatch, stub_logger):
     import wechat_forensic.uploader as uploader_mod
     monkeypatch.setattr(uploader_mod, "PLUGIN_DIR_USER", plugin_dir)
     monkeypatch.setattr(uploader_mod, "PLUGIN_DIR_PROJECT", tmp_path / "no_such_dir")
+    monkeypatch.setenv("WECHAT_FORENSIC_ENABLE_PLUGINS", "true")
 
     reg = UploaderRegistry()
     u = reg.get("s3")
@@ -226,6 +228,7 @@ def test_bad_plugin_does_not_crash_registry(tmp_path, monkeypatch):
     import wechat_forensic.uploader as uploader_mod
     monkeypatch.setattr(uploader_mod, "PLUGIN_DIR_USER", plugin_dir)
     monkeypatch.setattr(uploader_mod, "PLUGIN_DIR_PROJECT", tmp_path / "no_such_dir")
+    monkeypatch.setenv("WECHAT_FORENSIC_ENABLE_PLUGINS", "true")
 
     reg = UploaderRegistry()
     # 内置仍可用

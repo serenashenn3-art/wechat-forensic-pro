@@ -40,6 +40,8 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Type
 
+from .hashing import Hasher
+
 
 # ===========================================================================
 # 常量
@@ -299,10 +301,14 @@ class WebDAVUploader(UploaderBase):
                 "webdav_login": user,
                 "webdav_password": pwd,
             }
-            # webdavclient3 不直接支持 verify_ssl, 但支持 verify
             if not verify_ssl:
-                import urllib3  # type: ignore
-                urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+                # 仅对当前 Client 关闭 SSL 验证,不全局禁用 urllib3 警告
+                options["verify"] = False
+                self._log(
+                    logger,
+                    "warning",
+                    "WebDAV verify_ssl=false: 已关闭 SSL 证书验证,存在中间人风险",
+                )
 
             client = Client(options)
             # 远端目录不存在则尝试创建
@@ -489,7 +495,22 @@ class UploaderRegistry:
         for cls in self.BUILTIN_CLASSES:
             self._register(cls)
 
-        # 第三方插件目录
+        # 第三方插件目录: 默认禁用,需显式开启并校验
+        plugins_enabled = os.environ.get(
+            "WECHAT_FORENSIC_ENABLE_PLUGINS", ""
+        ).strip().lower() in ("1", "true", "yes")
+        if not plugins_enabled:
+            if PLUGIN_DIR_USER.exists() and any(PLUGIN_DIR_USER.glob("*.py")):
+                sys.stderr.write(
+                    "[warning] 发现第三方上传器插件目录,但插件加载已禁用。"
+                    "如需加载请设置 WECHAT_FORENSIC_ENABLE_PLUGINS=true 并核对文件哈希。\n"
+                )
+            return
+
+        sys.stderr.write(
+            "[warning] WECHAT_FORENSIC_ENABLE_PLUGINS=true: 即将加载第三方插件,"
+            "请确保插件来源可信。\n"
+        )
         for d in (PLUGIN_DIR_USER, PLUGIN_DIR_PROJECT):
             if d.exists():
                 self._discover_from_dir(d)
@@ -514,6 +535,10 @@ class UploaderRegistry:
                 continue
             mod_name = f"wfp_uploader_plugin_{f.stem}"
             try:
+                sha256 = Hasher.sha256_file(str(f))
+                sys.stderr.write(
+                    f"[info] 加载第三方插件 {f.name} (sha256={sha256})\n"
+                )
                 spec = importlib.util.spec_from_file_location(mod_name, f)
                 if spec is None or spec.loader is None:
                     continue
