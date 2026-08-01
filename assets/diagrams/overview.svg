@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 540" font-family="-apple-system, 'Segoe UI', 'PingFang SC', 'Noto Sans CJK SC', sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+    <linearGradient id="box" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3b82f6"/>
+      <stop offset="100%" stop-color="#1d4ed8"/>
+    </linearGradient>
+    <linearGradient id="box2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#047857"/>
+    </linearGradient>
+    <linearGradient id="box3" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+    <linearGradient id="box4" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#8b5cf6"/>
+      <stop offset="100%" stop-color="#6d28d9"/>
+    </linearGradient>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#94a3b8"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="900" height="540" fill="url(#bg)"/>
+
+  <!-- Title -->
+  <text x="450" y="42" text-anchor="middle" fill="#f1f5f9" font-size="22" font-weight="700">
+    WeChat Forensic Extractor Pro · v2.0.3
+  </text>
+  <text x="450" y="64" text-anchor="middle" fill="#94a3b8" font-size="12">
+    Cross-platform forensic toolchain · ISO/IEC 27037 compliant · Legal use only
+  </text>
+
+  <!-- Layer 1: Source Devices -->
+  <g transform="translate(20, 100)">
+    <rect width="180" height="380" rx="10" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+    <text x="90" y="25" text-anchor="middle" fill="#cbd5e1" font-size="13" font-weight="600">Source Devices</text>
+    <text x="90" y="42" text-anchor="middle" fill="#64748b" font-size="10">原始设备</text>
+
+    <!-- PC -->
+    <g transform="translate(15, 60)">
+      <rect width="150" height="60" rx="6" fill="url(#box)" opacity="0.9"/>
+      <text x="75" y="25" text-anchor="middle" fill="#fff" font-size="13" font-weight="600">PC</text>
+      <text x="75" y="42" text-anchor="middle" fill="#cbd5e1" font-size="9">Windows / macOS / Linux</text>
+      <text x="75" y="54" text-anchor="middle" fill="#cbd5e1" font-size="9">WeChat Files</text>
+    </g>
+
+    <!-- iOS -->
+    <g transform="translate(15, 140)">
+      <rect width="150" height="60" rx="6" fill="url(#box2)" opacity="0.9"/>
+      <text x="75" y="25" text-anchor="middle" fill="#fff" font-size="13" font-weight="600">iOS Backup</text>
+      <text x="75" y="42" text-anchor="middle" fill="#cbd5e1" font-size="9">Finder / iTunes</text>
+      <text x="75" y="54" text-anchor="middle" fill="#cbd5e1" font-size="9">MobileSync/Backup/&lt;UDID&gt;</text>
+    </g>
+
+    <!-- Android -->
+    <g transform="translate(15, 220)">
+      <rect width="150" height="60" rx="6" fill="url(#box3)" opacity="0.9"/>
+      <text x="75" y="25" text-anchor="middle" fill="#fff" font-size="13" font-weight="600">Android</text>
+      <text x="75" y="42" text-anchor="middle" fill="#cbd5e1" font-size="9">/sdcard/Android/data/</text>
+      <text x="75" y="54" text-anchor="middle" fill="#cbd5e1" font-size="9">com.tencent.mm (root)</text>
+    </g>
+
+    <!-- DB -->
+    <g transform="translate(15, 300)">
+      <rect width="150" height="60" rx="6" fill="url(#box4)" opacity="0.9"/>
+      <text x="75" y="25" text-anchor="middle" fill="#fff" font-size="13" font-weight="600">EnMicroMsg.db</text>
+      <text x="75" y="42" text-anchor="middle" fill="#cbd5e1" font-size="9">SQLCipher AES-256</text>
+      <text x="75" y="54" text-anchor="middle" fill="#fbbf24" font-size="9" font-weight="700">⚠ Encrypted (not decrypted)</text>
+    </g>
+  </g>
+
+  <!-- Layer 2: Write Blocker -->
+  <g transform="translate(230, 200)">
+    <rect width="120" height="80" rx="8" fill="#0f172a" stroke="#fbbf24" stroke-width="2" stroke-dasharray="4,3"/>
+    <text x="60" y="28" text-anchor="middle" fill="#fbbf24" font-size="12" font-weight="700">Write Blocker</text>
+    <text x="60" y="46" text-anchor="middle" fill="#fcd34d" font-size="9">写保护桥</text>
+    <text x="60" y="60" text-anchor="middle" fill="#94a3b8" font-size="9">Tableau T8u</text>
+    <text x="60" y="72" text-anchor="middle" fill="#94a3b8" font-size="9">WiebeTech</text>
+  </g>
+
+  <!-- Layer 3: Acquisition -->
+  <g transform="translate(230, 100)">
+    <rect width="120" height="80" rx="8" fill="url(#box)"/>
+    <text x="60" y="28" text-anchor="middle" fill="#fff" font-size="12" font-weight="700">Bit-for-bit</text>
+    <text x="60" y="46" text-anchor="middle" fill="#cbd5e1" font-size="11" font-weight="600">Imaging</text>
+    <text x="60" y="62" text-anchor="middle" fill="#cbd5e1" font-size="9">位对位镜像 (dd)</text>
+    <text x="60" y="74" text-anchor="middle" fill="#cbd5e1" font-size="9">python_raw_copy</text>
+  </g>
+
+  <g transform="translate(230, 300)">
+    <rect width="120" height="80" rx="8" fill="url(#box2)"/>
+    <text x="60" y="28" text-anchor="middle" fill="#fff" font-size="12" font-weight="700">Forensic</text>
+    <text x="60" y="46" text-anchor="middle" fill="#cbd5e1" font-size="11" font-weight="600">Extraction</text>
+    <text x="60" y="62" text-anchor="middle" fill="#cbd5e1" font-size="9">取证级目录提取</text>
+    <text x="60" y="74" text-anchor="middle" fill="#cbd5e1" font-size="9">SHA-256 4MB chunk</text>
+  </g>
+
+  <!-- Arrows to imaging/extraction -->
+  <line x1="200" y1="160" x2="230" y2="140" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="200" y1="240" x2="230" y2="240" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="200" y1="320" x2="230" y2="340" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="200" y1="400" x2="230" y2="340" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Layer 4: Hashing -->
+  <g transform="translate(380, 200)">
+    <rect width="140" height="80" rx="8" fill="#0f172a" stroke="#10b981" stroke-width="2"/>
+    <text x="70" y="28" text-anchor="middle" fill="#10b981" font-size="12" font-weight="700">SHA-256</text>
+    <text x="70" y="46" text-anchor="middle" fill="#a7f3d0" font-size="11" font-weight="600">Hashing</text>
+    <text x="70" y="62" text-anchor="middle" fill="#94a3b8" font-size="9">每个文件 / 整体目录</text>
+    <text x="70" y="74" text-anchor="middle" fill="#94a3b8" font-size="9">原始证据完整性</text>
+  </g>
+
+  <!-- Arrow -->
+  <line x1="350" y1="240" x2="380" y2="240" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Layer 5: Report -->
+  <g transform="translate(550, 100)">
+    <rect width="150" height="160" rx="8" fill="url(#box4)"/>
+    <text x="75" y="28" text-anchor="middle" fill="#fff" font-size="13" font-weight="700">ISO 27037</text>
+    <text x="75" y="46" text-anchor="middle" fill="#fff" font-size="11" font-weight="600">Forensic Report</text>
+    <text x="75" y="68" text-anchor="middle" fill="#cbd5e1" font-size="10">• Compliance</text>
+    <text x="75" y="84" text-anchor="middle" fill="#cbd5e1" font-size="10">• Chain of Custody</text>
+    <text x="75" y="100" text-anchor="middle" fill="#cbd5e1" font-size="10">• Operations log</text>
+    <text x="75" y="116" text-anchor="middle" fill="#cbd5e1" font-size="10">• Write-blocking</text>
+    <text x="75" y="132" text-anchor="middle" fill="#cbd5e1" font-size="10">• Digital signature</text>
+    <text x="75" y="150" text-anchor="middle" fill="#fbbf24" font-size="9" font-weight="600">JSON + TXT</text>
+  </g>
+
+  <g transform="translate(550, 300)">
+    <rect width="150" height="160" rx="8" fill="url(#box3)"/>
+    <text x="75" y="28" text-anchor="middle" fill="#fff" font-size="13" font-weight="700">Digital</text>
+    <text x="75" y="46" text-anchor="middle" fill="#fff" font-size="11" font-weight="600">Signature</text>
+    <text x="75" y="68" text-anchor="middle" fill="#cbd5e1" font-size="10">• HMAC-SHA256</text>
+    <text x="75" y="84" text-anchor="middle" fill="#cbd5e1" font-size="10">• RSA-PSS-SHA256</text>
+    <text x="75" y="100" text-anchor="middle" fill="#cbd5e1" font-size="10">• Tamper-evident</text>
+    <text x="75" y="116" text-anchor="middle" fill="#cbd5e1" font-size="10">• _signature.json</text>
+    <text x="75" y="150" text-anchor="middle" fill="#fbbf24" font-size="9" font-weight="600">Anti-tampering</text>
+  </g>
+
+  <!-- Arrows -->
+  <line x1="520" y1="230" x2="550" y2="180" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="520" y1="250" x2="550" y2="370" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Layer 6: Output Archive -->
+  <g transform="translate(730, 200)">
+    <rect width="150" height="80" rx="8" fill="#0f172a" stroke="#3b82f6" stroke-width="2"/>
+    <text x="75" y="28" text-anchor="middle" fill="#3b82f6" font-size="12" font-weight="700">AES-256</text>
+    <text x="75" y="46" text-anchor="middle" fill="#93c5fd" font-size="11" font-weight="600">Encrypted Archive</text>
+    <text x="75" y="62" text-anchor="middle" fill="#94a3b8" font-size="9">zip with password</text>
+    <text x="75" y="74" text-anchor="middle" fill="#94a3b8" font-size="9">SHA-256 verified</text>
+  </g>
+
+  <line x1="700" y1="180" x2="730" y2="220" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="700" y1="380" x2="730" y2="260" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Bottom: legal banner -->
+  <g transform="translate(0, 500)">
+    <rect width="900" height="40" fill="#7f1d1d" opacity="0.9"/>
+    <text x="450" y="25" text-anchor="middle" fill="#fecaca" font-size="12" font-weight="700">
+      ⚠ LEGAL USE ONLY — Authorized judicial forensics · corporate compliance · personal backup · academic research
+    </text>
+  </g>
+</svg>

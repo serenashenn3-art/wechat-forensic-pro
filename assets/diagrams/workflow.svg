@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 320" font-family="-apple-system, 'Segoe UI', 'PingFang SC', 'Noto Sans CJK SC', sans-serif">
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#94a3b8"/>
+    </marker>
+  </defs>
+  <rect width="800" height="320" fill="#0f172a"/>
+
+  <text x="400" y="35" text-anchor="middle" fill="#f1f5f9" font-size="18" font-weight="700">Forensic Workflow</text>
+  <text x="400" y="55" text-anchor="middle" fill="#94a3b8" font-size="11">取证工作流 · ISO/IEC 27037 兼容</text>
+
+  <!-- Step boxes -->
+  <g transform="translate(20, 100)">
+    <rect width="130" height="80" rx="8" fill="#1e3a8a" stroke="#3b82f6"/>
+    <text x="65" y="25" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">1. Acquire</text>
+    <text x="65" y="42" text-anchor="middle" fill="#bfdbfe" font-size="9">原始数据获取</text>
+    <text x="65" y="58" text-anchor="middle" fill="#bfdbfe" font-size="9">dd / python</text>
+    <text x="65" y="72" text-anchor="middle" fill="#fbbf24" font-size="8" font-weight="600">Write-blocked</text>
+  </g>
+
+  <g transform="translate(170, 100)">
+    <rect width="130" height="80" rx="8" fill="#065f46" stroke="#10b981"/>
+    <text x="65" y="25" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">2. Hash</text>
+    <text x="65" y="42" text-anchor="middle" fill="#a7f3d0" font-size="9">SHA-256 计算</text>
+    <text x="65" y="58" text-anchor="middle" fill="#a7f3d0" font-size="9">4MB chunk</text>
+    <text x="65" y="72" text-anchor="middle" fill="#a7f3d0" font-size="8">Integrity proof</text>
+  </g>
+
+  <g transform="translate(320, 100)">
+    <rect width="130" height="80" rx="8" fill="#7c2d12" stroke="#f59e0b"/>
+    <text x="65" y="25" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">3. Extract</text>
+    <text x="65" y="42" text-anchor="middle" fill="#fde68a" font-size="9">微信数据提取</text>
+    <text x="65" y="58" text-anchor="middle" fill="#fde68a" font-size="9">PC / iOS / Android</text>
+    <text x="65" y="72" text-anchor="middle" fill="#fde68a" font-size="8">Bit-for-bit copy</text>
+  </g>
+
+  <g transform="translate(470, 100)">
+    <rect width="130" height="80" rx="8" fill="#5b21b6" stroke="#8b5cf6"/>
+    <text x="65" y="25" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">4. Document</text>
+    <text x="65" y="42" text-anchor="middle" fill="#ddd6fe" font-size="9">Chain of Custody</text>
+    <text x="65" y="58" text-anchor="middle" fill="#ddd6fe" font-size="9">ISO 27037 fields</text>
+    <text x="65" y="72" text-anchor="middle" fill="#ddd6fe" font-size="8">JSON + TXT</text>
+  </g>
+
+  <g transform="translate(620, 100)">
+    <rect width="130" height="80" rx="8" fill="#831843" stroke="#ec4899"/>
+    <text x="65" y="25" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">5. Sign</text>
+    <text x="65" y="42" text-anchor="middle" fill="#fbcfe8" font-size="9">数字签名</text>
+    <text x="65" y="58" text-anchor="middle" fill="#fbcfe8" font-size="9">HMAC / RSA-PSS</text>
+    <text x="65" y="72" text-anchor="middle" fill="#fbcfe8" font-size="8">Tamper-evident</text>
+  </g>
+
+  <!-- Arrows -->
+  <line x1="150" y1="140" x2="170" y2="140" stroke="#94a3b8" stroke-width="2" marker-end="url(#ar)"/>
+  <line x1="300" y1="140" x2="320" y2="140" stroke="#94a3b8" stroke-width="2" marker-end="url(#ar)"/>
+  <line x1="450" y1="140" x2="470" y2="140" stroke="#94a3b8" stroke-width="2" marker-end="url(#ar)"/>
+  <line x1="600" y1="140" x2="620" y2="140" stroke="#94a3b8" stroke-width="2" marker-end="url(#ar)"/>
+
+  <!-- Bottom note -->
+  <text x="400" y="240" text-anchor="middle" fill="#94a3b8" font-size="11">
+    Every step records timestamp · operator · SHA-256 · evidence ID
+  </text>
+  <text x="400" y="260" text-anchor="middle" fill="#64748b" font-size="10">
+    6. Archive: AES-256 encrypted zip + cloud upload (Aliyun OSS / Baidu Netdisk)
+  </text>
+  <text x="400" y="290" text-anchor="middle" fill="#f87171" font-size="11" font-weight="600">
+    ⚠ Never operate on unauthorized devices
+  </text>
+</svg>

@@ -1,92 +1,95 @@
 # WeChat Forensic Extractor Pro
 
-> 跨平台微信聊天记录取证提取工具链 **v2.0.3**
-> 位对位镜像 · SHA-256 校验 · 完整 Chain of Custody · 数字签名
+> **Cross-platform WeChat chat-record forensic extraction toolchain · v2.0.3**
+> Bit-for-bit mirroring · SHA-256 verification · Full Chain of Custody · Digital signatures
+>
+> **Languages**: [English](README.md) · [简体中文](README.zh-CN.md)
 
 [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-blue)]()
 [![Python](https://img.shields.io/badge/python-3.8%2B-green)]()
-[![License](https://img.shields.io/badge/license-MIT%20%2B%20%E5%9F%9F%E5%A4%96%E9%99%90%E5%88%B6-orange)]()
+[![License](https://img.shields.io/badge/license-MIT%20%2B%20end--use%20restrictions-orange)]()
 [![AGENTS.md](https://img.shields.io/badge/AGENTS.md-compatible-purple)]()
 [![ISO 27037](https://img.shields.io/badge/compliance-ISO%2FIEC%2027037-informational)]()
 
-> **最近更新**: v2.0.3 补强证据链 / 数字签名 / 微信加密提示 / 合规框架引用。详见 [CHANGELOG.md](CHANGELOG.md)
+> **Latest**: v2.0.3 hardens Chain of Custody, digital signatures, WeChat DB encryption disclosure, and compliance framework references. See [CHANGELOG.md](CHANGELOG.md).
+
+![WeChat Forensic Pro Overview](assets/diagrams/overview.svg)
 
 ---
 
-## ⚠️ 法律声明 — 使用前必读
+## ⚠️ Legal Notice — Read Before Use
 
-**本工具仅供合法授权场景使用**,包括但不限于:
+This tool is intended **only for legally authorized scenarios**, including but not limited to:
 
-- 司法鉴定机构受委托的电子数据取证
-- 企业内部合规审计 (经员工授权)
-- 应急响应与个人数据备份 (本人数据)
-- 学术研究与教学演示
+- Electronic-data forensics commissioned by a CNAS/CMA-accredited forensic institute
+- Internal corporate compliance audits (with employee consent)
+- Incident response and personal data backup (the user's own data)
+- Academic research and teaching demonstrations
 
-**严禁**用于任何未授权的设备取证、私人偷拍取证、商业窃密,或违反
-《中华人民共和国刑法》《数据安全法》《个人信息保护法》及相关司法解释的行为。
-本工具的 LICENSE 涵盖**代码授权**,而**使用行为**受你所在司法辖区法律及
-[AGENTS.md](AGENTS.md) 顶部声明约束 — 详见 [LICENSE](LICENSE) 与下方"许可与伦理"章节。
+**Strictly prohibited** for any unauthorized device forensics, covert personal surveillance, corporate espionage, or any conduct violating the Criminal Law / Data Security Law / Personal Information Protection Law (PRC), GDPR Article 6 (EU), the CFAA (US), or equivalent statutes in your jurisdiction.
+
+The **MIT license covers the code**; the **end-use of the tool** is governed by your local law, the statements in [AGENTS.md](AGENTS.md), and the behavior of any AI agent that has read `AGENTS.md`. See [LICENSE](LICENSE) and the *License & Ethics* section below.
 
 ---
 
-## 快速开始 (Quick Start)
+## Quick Start
 
 ```bash
-# 1. 克隆
+# 1. Clone
 git clone https://github.com/serenashenn3-art/wechat-forensic-pro.git
 cd wechat-forensic-pro
 
-# 2. 安装 (含可选加密+云端依赖)
+# 2. Install (with optional crypto + cloud deps)
 pip install -e ".[all]"
 
-# 3. 跑起来 (需要管理员权限,因涉及磁盘镜像)
+# 3. Run (requires admin privileges for disk imaging)
 sudo wechat-forensic --case-id "CASE-2026-001" --evidence-id "E001" --sign
 
-# 不安装, 直接以模块跑
+# Without installing, run as a module
 sudo python -m wechat_forensic.cli --help
 ```
 
-> ⚠️ 镜像磁盘需要管理员/root 权限。如果你没有做磁盘镜像的需求,可以用 `--mode quick` 跳过:
+> ⚠️ Disk imaging requires admin/root privileges. If you only need file-level extraction, skip imaging with `--mode quick`:
 > `wechat-forensic --mode quick --source "/path/to/WeChat Files"`
 
 ---
 
-## 安装 (Installation)
+## Installation
 
-### 必需依赖
-- **Python 3.8+** (3.10+ 推荐)
-- `psutil` — 磁盘扫描
+### Required
+- **Python 3.8+** (3.10+ recommended)
+- `psutil` — disk scanning
 
-### 可选依赖 (按需安装)
-| extra | 提供 | 场景 |
-|---|---|---|
-| `[crypto]` | `pyzipper` | AES-256 加密 zip |
-| `[aliyun]` | `oss2` | 阿里云 OSS 上传 |
-| `[baidu]` | `bypy` | 百度网盘上传 |
-| `[all]` | 全部上述 | 完整功能 |
-| `[dev]` | `pytest`, `pytest-cov` | 开发测试 |
+### Optional Extras
+| Extra      | Provides         | Use case                            |
+|------------|------------------|-------------------------------------|
+| `[crypto]` | `pyzipper`       | AES-256-encrypted zip output        |
+| `[aliyun]` | `oss2`           | Aliyun OSS upload                   |
+| `[baidu]`  | `bypy`           | Baidu Netdisk upload                |
+| `[all]`    | All of the above | Full functionality                  |
+| `[dev]`    | `pytest`, `pytest-cov` | Development & testing         |
 
 ```bash
-# 仅核心
+# Core only
 pip install -e .
 
-# 全部功能
+# Everything
 pip install -e ".[all]"
 
-# 开发
+# Dev
 pip install -e ".[dev,all]"
 ```
 
-### 跨平台说明
-- **Windows**: 用 PowerShell (本机自带) 做磁盘扫描;做位对位镜像需 FTK Imager 或 Tableau 写保护桥
-- **macOS**: 部分 macOS 微信数据在 App Sandbox 容器内,需先启动微信一次
-- **Linux**: 微信由 CrossOver/Wine 运行,实际目录结构与 Windows 相同
+### Platform Notes
+- **Windows**: PowerShell is used for disk scanning; for bit-for-bit imaging use FTK Imager or a Tableau write-blocker bridge
+- **macOS**: Some WeChat data lives inside the App Sandbox container; launch WeChat once first
+- **Linux**: WeChat on Linux runs via CrossOver/Wine — the directory layout mirrors Windows
 
 ---
 
-## 使用示例 (Usage)
+## Usage
 
-### CLI 参数
+### CLI Arguments
 ```text
 wechat-forensic [-h] [--mode {quick,forensic}] [--source SOURCE]
                 [--mirror-disk MIRROR_DISK] [--output OUTPUT]
@@ -96,21 +99,21 @@ wechat-forensic [-h] [--mode {quick,forensic}] [--source SOURCE]
                 [--sign] [--no-interactive] [--version]
 ```
 
-### 典型场景
+### Common Scenarios
 
-**场景 1: 司法鉴定 (完整流程)**
+**Scenario 1 — Judicial Forensics (full chain)**
 ```bash
-# 接入硬件写保护桥 (如 Tableau T8u) 后:
+# After attaching a hardware write-blocker (e.g. Tableau T8u):
 sudo wechat-forensic \
   --mode forensic \
-  --case-id "司法鉴定委托函[2026]第001号" \
-  --evidence-id "E001-嫌疑人PC硬盘" \
+  --case-id "Forensic-Commission[2026]No.001" \
+  --evidence-id "E001-suspect-PC-disk" \
   --sign \
   --zip-password "SecureP@ss!" \
   --output /Volumes/EvidenceDrive/CASE-2026-001
 ```
 
-**场景 2: 企业合规审计 (指定路径)**
+**Scenario 2 — Corporate Compliance Audit (path-based)**
 ```bash
 sudo wechat-forensic \
   --mode quick \
@@ -119,15 +122,15 @@ sudo wechat-forensic \
   --zip-password "CompanySecret2026"
 ```
 
-**场景 3: 个人数据备份**
+**Scenario 3 — Personal Data Backup**
 ```bash
 wechat-forensic --mode quick --source "$HOME/Documents/WeChat Files" --no-interactive
 ```
 
-**场景 4: 自动化/CI**
+**Scenario 4 — Automation / CI**
 ```bash
 wechat-forensic --mode quick --source /data/wx --no-interactive --output /tmp/out
-# 退出码 0 = 成功, 1 = 未找到数据
+# Exit code 0 = success, 1 = data not found
 ```
 
 ### Python API
@@ -138,10 +141,10 @@ from wechat_forensic.logger import ForensicLogger
 from wechat_forensic.report import ReportGenerator
 from wechat_forensic.security import sign_report, chain_of_custody_template
 
-# 1) 计算单个文件哈希
+# 1) Hash a single file
 sha = Hasher.sha256_file("/path/to/msg.db")
 
-# 2) 提取整个微信目录
+# 2) Extract a WeChat directory
 ext = Extractor(ForensicLogger("./log.txt"), out_dir="./out")
 ext.extract_pc({
     "wxid": "wxid_abc",
@@ -152,38 +155,38 @@ ext.extract_pc({
 })
 ext.save_manifest()
 
-# 3) 生成报告 (含完整 Chain of Custody 模板)
+# 3) Generate a report (with full Chain of Custody template)
 ReportGenerator.generate(
     "./out", operations=[], case_id="CASE-001", evidence_id="E001",
 )
 
-# 4) 数字签名
+# 4) Sign the report
 sign_report("./out/_forensic_report.json")
 ```
 
 ---
 
-## 输出格式 (Output Format)
+## Output Format
 
 ```
 wechat_forensic_output/
-├── mirrors/                        # 位对位磁盘镜像 (取证模式)
+├── mirrors/                        # Bit-for-bit disk images (forensic mode)
 │   └── disk_mirror_20260801_xxxxxx.img
-├── PC_wxid_xxxxx/                  # PC 微信提取
+├── PC_wxid_xxxxx/                  # PC WeChat extraction
 │   ├── Msg/                        # *.db, *.db-wal, *.db-shm
-│   ├── FileStorage/                # 图片/文件/视频
-│   └── config/                     # 配置
-├── Mobile_ios_<UDID>_<8hex>/       # iOS 备份
-├── Mobile_android_<path8>/         # Android 备份
-├── _forensic_manifest.json         # 整体清单
-├── _forensic_report.json           # 取证报告 (机器可读)
-├── _forensic_report.txt            # 取证报告 (人类可读)
-├── _signature.json                 # 数字签名 (使用 --sign 时)
-├── forensic_log.txt                # 操作日志
-└── wechat_forensic_output_*.zip    # 压缩包 (带 SHA-256)
+│   ├── FileStorage/                # images / files / videos
+│   └── config/                     # config files
+├── Mobile_ios_<UDID>_<8hex>/       # iOS backup
+├── Mobile_android_<path8>/         # Android backup
+├── _forensic_manifest.json         # overall manifest
+├── _forensic_report.json           # forensic report (machine-readable)
+├── _forensic_report.txt            # forensic report (human-readable)
+├── _signature.json                 # digital signature (with --sign)
+├── forensic_log.txt                # operation log
+└── wechat_forensic_output_*.zip    # zipped package (with SHA-256)
 ```
 
-### JSON 报告结构 (v2.0.3 schema)
+### JSON Report Schema (v2.0.3)
 
 ```jsonc
 {
@@ -199,11 +202,11 @@ wechat_forensic_output/
   },
   "compliance": {
     "frameworks": ["ISO/IEC 27037:2012", "RFC 3227", "NIST SP 800-86"],
-    "principle": "原始证据不可修改,所有操作在副本/镜像上进行",
+    "principle": "Original evidence is immutable; all operations performed on copies/images",
     "hash_algorithm": "SHA-256 (4MB chunk)"
   },
   "chain_of_custody": {
-    "case_id": "司法鉴定委托函[2026]第001号",
+    "case_id": "Forensic-Commission[2026]No.001",
     "evidence_id": "E001",
     "acquisition": {
       "date_utc": "...",
@@ -215,20 +218,20 @@ wechat_forensic_output/
     "storage": { "current_location": "...", "encryption": "AES-256" }
   },
   "operations": [
-    { "step": "磁盘镜像生成", "sha256": "...", "source": "/dev/disk0", ... },
-    { "step": "数据提取", "source": "...", "file_hashes": {...} }
+    { "step": "Disk image generation", "sha256": "...", "source": "/dev/disk0", ... },
+    { "step": "Data extraction", "source": "...", "file_hashes": {...} }
   ]
 }
 ```
 
-### 数字签名格式 (`_signature.json`)
+### Digital Signature Format (`_signature.json`)
 
 ```jsonc
 {
   "report_path": "/abs/path/_forensic_report.json",
   "report_sha256": "abc123...",
   "signed_at": "2026-08-01T07:40:24Z",
-  "signature_algorithm": "HMAC-SHA256",   // 或 RSA-PSS-SHA256
+  "signature_algorithm": "HMAC-SHA256",   // or RSA-PSS-SHA256
   "signature_b64": "...",
   "compliance": {
     "iso_27037": "...",
@@ -237,90 +240,103 @@ wechat_forensic_output/
 }
 ```
 
-HMAC 密钥从环境变量 `WECHAT_FORENSIC_HMAC_KEY` 读取,生产环境务必设置。
+The HMAC key is read from the `WECHAT_FORENSIC_HMAC_KEY` environment variable — **set it in production**.
 
 ---
 
-## 微信数据路径表 (详细)
+## WeChat Data Path Table
 
-| 平台 | 完整路径 | 权限要求 | 备注 |
-|---|---|---|---|
-| **Windows PC** | `%USERPROFILE%\Documents\WeChat Files\` | 用户权限 | 自定义安装可能改路径 |
-| **macOS PC** | `~/Library/Containers/com.tencent.xinWeChat/Data/Library/Application Support/com.tencent.xinWeChat/` | 用户权限 | App Sandbox 完整路径 |
-| **Linux PC** | `~/.config/wechat` | 用户权限 | CrossOver/Wine 目录结构 |
-| **iOS 备份** | `~/Library/Application Support/MobileSync/Backup/<UDID>/` | 用户权限 | 目录名是 UDID 去掉横线的小写 hex |
-| **Android 11+** | `/sdcard/Android/data/com.tencent.mm/MicroMsg/` | **需 root 或 Shizuku** | Scoped Storage 限制 |
-| **Android 10-** | `/sdcard/tencent/MicroMsg/` | 用户权限 | adb pull 可读 |
-| **Android 数据库** | `/data/data/com.tencent.mm/MicroMsg/<32位MD5>/EnMicroMsg.db` | **需 root** | SQLCipher 加密 |
+| Platform             | Full Path                                                                          | Privilege Required                  | Notes                                |
+|----------------------|------------------------------------------------------------------------------------|-------------------------------------|--------------------------------------|
+| **Windows PC**       | `%USERPROFILE%\Documents\WeChat Files\`                                            | User                                | Custom install may change the path   |
+| **macOS PC**         | `~/Library/Containers/com.tencent.xinWeChat/Data/Library/Application Support/com.tencent.xinWeChat/` | User                                | Full App Sandbox path                |
+| **Linux PC**         | `~/.config/wechat`                                                                 | User                                | CrossOver/Wine layout                |
+| **iOS Backup**       | `~/Library/Application Support/MobileSync/Backup/<UDID>/`                          | User                                | Folder name = UDID (lowercase hex, no dashes) |
+| **Android 11+**      | `/sdcard/Android/data/com.tencent.mm/MicroMsg/`                                    | **Root or Shizuku**                 | Scoped Storage restriction           |
+| **Android 10-**      | `/sdcard/tencent/MicroMsg/`                                                        | User                                | `adb pull` works                     |
+| **Android DB**       | `/data/data/com.tencent.mm/MicroMsg/<32-hex-MD5>/EnMicroMsg.db`                    | **Root**                            | SQLCipher-encrypted                  |
 
-### 微信数据库加密 (EnMicroMsg.db)
-- **算法**: SQLCipher (AES-256-CBC)
-- **密钥**: `MD5(IMEI + UIN)[0:7]` (取 MD5 前 7 字符)
-- **本工具**: 只做位对位提取,**不包含解密逻辑**
-- **解密参考**: [wechat-dbcracker](https://github.com/Hill1976/WechatExporter), wxsqlcipher
-- **法律提示**: 解密他人微信数据仍需合法授权
-
----
-
-## 合规框架 (Compliance)
-
-本工具的取证流程参考:
-
-- **ISO/IEC 27037:2012** — 数字证据识别、收集、获取、保存指南
-- **ISO/IEC 27042:2015** — 数字证据分析与解释指南
-- **RFC 3227** — IETF 取证最佳实践 (Use copies, avoid contamination, record everything)
-- **NIST SP 800-86** — 取证过程整合指南
-- **《最高人民法院关于民事诉讼证据的若干规定》** — 电子数据相关条款
-
-详细字段定义见 `wechat_forensic/security.py` 和 `wechat_forensic/report.py`。
+### WeChat Database Encryption (EnMicroMsg.db)
+- **Algorithm**: SQLCipher (AES-256-CBC)
+- **Key derivation**: `MD5(IMEI + UIN)[0:7]` (first 7 chars of MD5)
+- **This tool**: only performs bit-for-bit extraction; **decryption is NOT included**
+- **Decryption references**: [wechat-dbcracker](https://github.com/Hill1976/WechatExporter), wxsqlcipher
+- **Legal note**: decrypting someone else's WeChat data still requires lawful authorization
 
 ---
 
-## 局限性与免责声明 (Limitations)
+## Compliance Framework
 
-### 工具局限
-1. **不包含 EnMicroMsg.db 解密** — 提取后仍需独立工具解密
-2. **不验证原始设备数据真实性** — 只校验提取副本的完整性
-3. **位对位磁盘镜像需要 root/admin** — 跨平台权限要求不同
-4. **Android 11+ 受 Scoped Storage 限制** — 必须 root 或 Shizuku
-5. **macOS 沙盒路径** — 需先启动微信一次
-6. **iOS 加密备份** — 需提供 iTunes 加密密码 (本工具当前版本不直接处理)
+This tool's forensic flow references:
 
-### 司法局限
-1. 本报告是**操作日志**,**不构成司法鉴定意见书**
-2. 司法鉴定需由具备 **CNAS / CMA** 资质的机构出具正式报告
-3. 报告的司法效力取决于:写保护设备、操作见证人、规范的保管链、签名的合法性
+- **ISO/IEC 27037:2012** — Guidelines for identification, collection, acquisition and preservation of digital evidence
+- **ISO/IEC 27042:2015** — Guidelines for the analysis and interpretation of digital evidence
+- **RFC 3227** — IETF best practices for evidence collection (Use copies, avoid contamination, record everything)
+- **NIST SP 800-86** — Guide to integrating forensic techniques into incident response
+- **PRC Supreme People's Court Provisions on Civil Litigation Evidence** — electronic-data clauses
 
-### 伦理局限
-1. **严禁**对未授权设备使用本工具
-2. 使用者需自行评估目标司法辖区的法律
-3. 工具作者**不承担**任何滥用责任
+See `wechat_forensic/security.py` and `wechat_forensic/report.py` for field definitions.
 
 ---
 
-## 开发与测试 (Development)
+## Limitations & Disclaimer
+
+### Tool Limitations
+1. **No EnMicroMsg.db decryption** — independent tools required after extraction
+2. **No verification of original device authenticity** — only the extracted copy is hashed
+3. **Bit-for-bit imaging requires root/admin** — privilege requirements differ per platform
+4. **Android 11+ Scoped Storage** — requires root or Shizuku
+5. **macOS sandbox path** — launch WeChat once before extraction
+6. **Encrypted iOS backup** — iTunes backup password required (not handled directly by this version)
+
+### Judicial Limitations
+1. This report is an **operation log**, **not a judicial forensic opinion**
+2. Judicial opinions must be issued by a **CNAS/CMA-accredited** forensic institute
+3. The report's judicial weight depends on: write-blocking hardware, witness presence, complete chain of custody, and signature legality
+
+### Ethical Limitations
+1. **Never** use this tool on unauthorized devices
+2. Users must independently assess the law of their jurisdiction
+3. The authors **bear no liability** for misuse
+
+---
+
+## Development & Testing
 
 ```bash
 git clone https://github.com/serenashenn3-art/wechat-forensic-pro.git
 cd wechat-forensic-pro
 pip install -e ".[dev,all]"
 
-# 跑测试 (21 用例, 覆盖关键 bug 修复)
+# Run tests (29 cases, covers key bug fixes)
 pytest tests/ -v --cov=wechat_forensic
 
-# 一次性检查 (lint + test + CLI smoke)
+# One-shot check (lint + test + CLI smoke)
 bash scripts/verify.sh
 ```
 
-### 贡献
-
-详见 [CONTRIBUTING.md](CONTRIBUTING.md)。**严禁**提交任何真实微信数据、镜像、压缩包、报告。
+See [CONTRIBUTING.md](CONTRIBUTING.md). **Never** commit real WeChat data, images, zips, or reports.
 
 ---
 
-## 许可与伦理 (License & Ethics)
+## AI Agent Skills
 
-### 代码许可: MIT
+This repository ships dedicated **Skill** manifests so AI tools can load the project directly:
+
+| Tool           | Skill file                                  |
+|----------------|---------------------------------------------|
+| **Kimi Work**  | [skills/kimi-work/SKILL.md](skills/kimi-work/SKILL.md) |
+| **Codex**      | [skills/codex/SKILL.md](skills/codex/SKILL.md)         |
+| **Claude**     | [skills/claude/SKILL.md](skills/claude/SKILL.md)       |
+| **Hermes**     | [skills/hermes/SKILL.md](skills/hermes/SKILL.md)       |
+| **OpenClaw**   | [skills/openclaw/SKILL.md](skills/openclaw/SKILL.md)   |
+| **TRAE**       | [AGENTS.md](AGENTS.md)                                   |
+
+---
+
+## License & Ethics
+
+### Code License: MIT
 
 ```
 MIT License
@@ -332,48 +348,47 @@ of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction ...
 ```
 
-完整条款见 [LICENSE](LICENSE)。
+Full terms in [LICENSE](LICENSE).
 
-### ⚠️ MIT 许可与使用行为的关系
+### ⚠️ Relationship between MIT and end-use
 
-> **法律免责声明**: 本节由项目维护者提供,仅供参考,非法律意见。
+> **Legal disclaimer**: this section is provided by the project maintainers, for reference only, and is not legal advice.
 
-MIT 许可证本身**仅覆盖代码层面的使用、复制、修改、分发授权**,**不能**通过 LICENSE 文件单方面限制代码的最终用途 — 这是所有开源许可证的通性。
+The MIT license itself **only governs the code-level grant** (use, copy, modify, distribute) — it **cannot** unilaterally restrict the end-use of the code via the LICENSE file. This is true of all open-source licenses.
 
-因此本项目采用"**双重约束**"机制:
+The project therefore uses a **dual constraint** mechanism:
 
-1. **代码授权** = MIT 许可证 (你可以自由使用、修改、分发代码)
-2. **使用行为约束** = [AGENTS.md](AGENTS.md) 顶部声明 + 本 README 法律声明 + 各国/地区现行法律
+1. **Code grant** = MIT license (you may freely use, modify, distribute the code)
+2. **End-use constraint** = [AGENTS.md](AGENTS.md) + this README's legal notice + applicable laws
 
-违反使用行为约束**不会**自动吊销你的代码授权(因为 MIT 本身没有此条款),但:
+Violating the end-use constraint **does not** automatically revoke your code grant (since MIT has no such clause), BUT:
 
-- 违反当地法律会导致你个人承担法律责任 (与本项目无关)
-- AI 工具读到 `AGENTS.md` 后会**主动拒绝**协助违规使用
-- 项目维护者保留从分发渠道(如 PyPI)撤回侵权分发的权利(适用 DMCA / 当地类似法律)
+- Violating local law exposes **you** to personal liability (the project bears none)
+- AI tools that read `AGENTS.md` will **actively refuse** to assist with violations
+- Maintainers reserve the right to **withdraw infringing distributions** from PyPI / GitHub Releases (under DMCA or equivalent)
 
-### 司法管辖区注意事项
-
-- **中国大陆**: 违反《刑法》第 285 条(非法获取计算机信息系统数据罪)、《数据安全法》、《个人信息保护法》
-- **欧盟**: 违反 GDPR Article 6 (合法处理基础)
-- **美国**: 违反 CFAA (Computer Fraud and Abuse Act) + 州法律 (如 CCPA)
+### Jurisdiction Notes
+- **PRC**: Criminal Law Art. 285, Data Security Law, Personal Information Protection Law
+- **EU**: GDPR Article 6
+- **US**: CFAA + state laws (e.g. CCPA)
 
 ---
 
-## 反馈 (Feedback)
+## Feedback
 
 - Bug Report: [GitHub Issues](https://github.com/serenashenn3-art/wechat-forensic-pro/issues/new/choose)
-- 合法授权场景下的功能建议欢迎
-- 未授权场景的"功能建议"会被直接关闭
+- Feature requests for legitimate authorized scenarios are welcome
+- "Feature requests" for unauthorized scenarios will be closed immediately
 
 ---
 
-## 相关项目 (Related)
+## Related Projects
 
-- [wechat-dbcracker](https://github.com/Hill1976/WechatExporter) — EnMicroMsg.db 解密参考
-- [WxSqlcipher](https://github.com/ppwwyyxx/wechat-dump) — 微信数据库导出
-- [Autopsy](https://www.autopsy.com/) — 商业取证平台 (Windows)
-- [Sleuth Kit](https://www.sleuthkit.org/) — 开源取证框架
+- [wechat-dbcracker](https://github.com/Hill1976/WechatExporter) — EnMicroMsg.db decryption reference
+- [WxSqlcipher](https://github.com/ppwwyyxx/wechat-dump) — WeChat database export
+- [Autopsy](https://www.autopsy.com/) — commercial forensic platform (Windows)
+- [Sleuth Kit](https://www.sleuthkit.org/) — open-source forensic framework
 
 ---
 
-**最后更新**: 2026-08-01 · v2.0.3 · Made for **legal forensics** by authorized practitioners only.
+**Last updated**: 2026-08-02 · v2.0.3 · Made for **legal forensics** by authorized practitioners only.
