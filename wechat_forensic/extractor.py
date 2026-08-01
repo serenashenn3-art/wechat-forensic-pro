@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Dict, List, Tuple
 
 from .hashing import Hasher
+from . import __version__
 
 
 class Extractor:
@@ -19,7 +20,7 @@ class Extractor:
         self.out = Path(out_dir or "./wechat_forensic_output")
         self.out.mkdir(parents=True, exist_ok=True)
         self.manifest = {
-            "tool": "WeChat Forensic Extractor Pro v2.0.2",
+            "tool": f"WeChat Forensic Extractor Pro {__version__}",
             "time": datetime.datetime.now().isoformat(),
             "operator": getpass.getuser(),
             "hostname": platform.node(),
@@ -29,6 +30,7 @@ class Extractor:
 
     def extract_pc(self, info: Dict) -> Tuple[str, Dict]:
         """提取 PC 数据"""
+        self.log.info(f"WeChat Forensic Extractor Pro {__version__} - PC Extraction")
         wxid = info["wxid"]
         dst = self.out / f"PC_{wxid}"
         dst.mkdir(exist_ok=True)
@@ -134,7 +136,7 @@ class Extractor:
         h = hashlib.sha256()
         files = []
         for f in sorted(path.rglob("*")):
-            if f.is_file() and f.name != "_manifest.json":
+            if f.is_file() and f.name != "_forensic_manifest.json":
                 # rglob 出来的 f 本身没有"根目录之外"的相对路径概念,
                 # 必须用 f.relative_to(path) 才能拿到完整子路径
                 files.append((f.relative_to(path).as_posix(), f))

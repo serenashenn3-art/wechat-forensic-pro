@@ -53,10 +53,10 @@ dev = ["pytest>=7.0", "pytest-cov>=4.0"]
 wechat-forensic = "wechat_forensic.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/your-org/wechat-forensic-pro"
-Documentation = "https://github.com/your-org/wechat-forensic-pro/blob/main/AGENTS.md"
-Issues = "https://github.com/your-org/wechat-forensic-pro/issues"
-Source = "https://github.com/your-org/wechat-forensic-pro"
+Homepage = "https://github.com/serenashenn3-art/wechat-forensic-pro"
+Documentation = "https://github.com/serenashenn3-art/wechat-forensic-pro/blob/main/AGENTS.md"
+Issues = "https://github.com/serenashenn3-art/wechat-forensic-pro/issues"
+Source = "https://github.com/serenashenn3-art/wechat-forensic-pro"
 
 [tool.setuptools.packages.find]
 include = ["wechat_forensic*"]

@@ -73,7 +73,7 @@
 ## 项目概览
 
 - **名称**: WeChat Forensic Extractor Pro
-- **版本**: 2.0.6
+- **版本**: 2.0.8
 - **类型**: 跨平台命令行取证工具
 - **入口**: `wechat_forensic/cli.py` (注册命令 `wechat-forensic`)
 - **Python**: 3.8+

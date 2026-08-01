@@ -594,4 +594,4 @@ MIT 许可证本身**仅覆盖代码层面的使用、复制、修改、分发�
 
 ---
 
-**最后更新**: 2026-08-02 · v2.0.6 · Made for **legal forensics** by authorized practitioners only.
+**最后更新**: 2026-08-02 · v2.0.8 · Made for **legal forensics** by authorized practitioners only.

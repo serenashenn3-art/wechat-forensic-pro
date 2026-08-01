@@ -24,7 +24,7 @@
 skill:
   id: wechat-forensic-pro
   name: "WeChat Forensic Pro"
-  version: "2.0.3"
+  version: "2.0.8"
   entry: skills/kimi-work/SKILL.md
   capabilities:
     - forensic-imaging

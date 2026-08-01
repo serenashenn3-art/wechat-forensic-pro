@@ -6,6 +6,8 @@ __pycache__/
 .Python
 *.egg-info/
 .pytest_cache/
+.coverage
+htmlcov/
 
 # 取证输出 (不要提交任何真实数据)
 wechat_forensic_output/

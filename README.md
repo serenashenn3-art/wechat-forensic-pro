@@ -231,7 +231,10 @@ wechat_forensic_output/
 └── wechat_forensic_output_*.zip    # zipped package (with SHA-256)
 ```
 
-### JSON Report Schema (v2.0.6)
+### JSON Report Schema (v2.0.6 — historical reference, retained for schema-migration readers)
+
+> **Note**: The block below shows the v2.0.6 schema **as it was published**.
+> Current v2.0.8 schema is documented in [`examples/sample-report/_forensic_report.json`](examples/sample-report/_forensic_report.json) and the JSON snippet further below in this README. The two are compatible — v2.0.8 is a **superset** of v2.0.6 (only adds fields, never removes or renames).
 
 ```jsonc
 {
@@ -638,6 +641,6 @@ Violating the end-use constraint **does not** automatically revoke your code gra
 
 ---
 
-**Last updated**: 2026-08-02 · v2.0.6 · Made for **legal forensics** by authorized practitioners only.
+**Last updated**: 2026-08-02 · v2.0.8 · Made for **legal forensics** by authorized practitioners only.
 
-> Version history: v2.0.3 (Chain of Custody) · v2.0.4 (i18n + AI Skills) · v2.0.5 (pluggable cloud upload) · **v2.0.6 (Chinese diagrams + legal clarification)**. Each version is independently usable; see [CHANGELOG.md](CHANGELOG.md) for the full record.
+> Version history: v2.0.3 (Chain of Custody) · v2.0.4 (i18n + AI Skills) · v2.0.5 (pluggable cloud upload) · v2.0.6 (Chinese diagrams + legal clarification) · v2.0.7 (symlink→mirror) · **v2.0.8 (README TOC + sample report + AGENTS summary — current)**. Each version is independently usable; see [CHANGELOG.md](CHANGELOG.md) for the full record.
