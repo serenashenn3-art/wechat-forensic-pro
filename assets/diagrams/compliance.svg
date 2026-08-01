@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 480" font-family="-apple-system, 'Segoe UI', 'PingFang SC', 'Noto Sans CJK SC', sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 480" font-family="-apple-system, 'Segoe UI', 'PingFang SC', 'Noto Sans CJK SC', 'Microsoft YaHei', sans-serif">
   <rect width="700" height="480" fill="#0f172a"/>
 
-  <text x="350" y="35" text-anchor="middle" fill="#f1f5f9" font-size="18" font-weight="700">Compliance Framework</text>
-  <text x="350" y="55" text-anchor="middle" fill="#94a3b8" font-size="11">合规框架 · 数字证据采集 / 保存 / 报告</text>
+  <text x="350" y="35" text-anchor="middle" fill="#f1f5f9" font-size="18" font-weight="700">合规框架</text>
+  <text x="350" y="55" text-anchor="middle" fill="#94a3b8" font-size="11">数字证据 · 采集 / 保存 / 分析 / 报告</text>
 
   <!-- ISO 27037 -->
   <g transform="translate(60, 100)">
     <rect width="280" height="120" rx="10" fill="#1e3a8a" stroke="#3b82f6" stroke-width="1.5"/>
     <text x="140" y="28" text-anchor="middle" fill="#fff" font-size="14" font-weight="700">ISO/IEC 27037:2012</text>
     <text x="140" y="48" text-anchor="middle" fill="#bfdbfe" font-size="10">数字证据识别、收集、获取、保存</text>
-    <text x="20" y="72" fill="#cbd5e1" font-size="10">• Identification · Collection</text>
-    <text x="20" y="88" fill="#cbd5e1" font-size="10">• Acquisition · Preservation</text>
-    <text x="20" y="104" fill="#fbbf24" font-size="10" font-weight="600">→ Implemented in security.py</text>
+    <text x="20" y="72" fill="#cbd5e1" font-size="10">• 识别 · 收集</text>
+    <text x="20" y="88" fill="#cbd5e1" font-size="10">• 获取 · 保存</text>
+    <text x="20" y="104" fill="#fbbf24" font-size="10" font-weight="600">→ 已实现于 security.py</text>
   </g>
 
   <!-- ISO 27042 -->
@@ -20,9 +20,9 @@
     <rect width="280" height="120" rx="10" fill="#065f46" stroke="#10b981" stroke-width="1.5"/>
     <text x="140" y="28" text-anchor="middle" fill="#fff" font-size="14" font-weight="700">ISO/IEC 27042:2015</text>
     <text x="140" y="48" text-anchor="middle" fill="#a7f3d0" font-size="10">数字证据分析与解释</text>
-    <text x="20" y="72" fill="#cbd5e1" font-size="10">• Examination · Analysis</text>
-    <text x="20" y="88" fill="#cbd5e1" font-size="10">• Interpretation · Reporting</text>
-    <text x="20" y="104" fill="#fbbf24" font-size="10" font-weight="600">→ Implemented in report.py</text>
+    <text x="20" y="72" fill="#cbd5e1" font-size="10">• 检验 · 分析</text>
+    <text x="20" y="88" fill="#cbd5e1" font-size="10">• 解释 · 报告</text>
+    <text x="20" y="104" fill="#fbbf24" font-size="10" font-weight="600">→ 已实现于 report.py</text>
   </g>
 
   <!-- RFC 3227 -->
@@ -30,9 +30,9 @@
     <rect width="280" height="120" rx="10" fill="#7c2d12" stroke="#f59e0b" stroke-width="1.5"/>
     <text x="140" y="28" text-anchor="middle" fill="#fff" font-size="14" font-weight="700">RFC 3227 (IETF)</text>
     <text x="140" y="48" text-anchor="middle" fill="#fde68a" font-size="10">收集和归档证据的最佳实践</text>
-    <text x="20" y="72" fill="#cbd5e1" font-size="10">• Use copies (never original)</text>
-    <text x="20" y="88" fill="#cbd5e1" font-size="10">• Avoid contamination · Record all</text>
-    <text x="20" y="104" fill="#fbbf24" font-size="10" font-weight="600">→ Hashing + write-blocking</text>
+    <text x="20" y="72" fill="#cbd5e1" font-size="10">• 使用副本(永不修改原件)</text>
+    <text x="20" y="88" fill="#cbd5e1" font-size="10">• 避免污染 · 记录全部操作</text>
+    <text x="20" y="104" fill="#fbbf24" font-size="10" font-weight="600">→ 哈希 + 写保护</text>
   </g>
 
   <!-- NIST 800-86 -->
@@ -40,16 +40,16 @@
     <rect width="280" height="120" rx="10" fill="#5b21b6" stroke="#8b5cf6" stroke-width="1.5"/>
     <text x="140" y="28" text-anchor="middle" fill="#fff" font-size="14" font-weight="700">NIST SP 800-86</text>
     <text x="140" y="48" text-anchor="middle" fill="#ddd6fe" font-size="10">取证过程整合指南</text>
-    <text x="20" y="72" fill="#cbd5e1" font-size="10">• Forensic process integration</text>
-    <text x="20" y="88" fill="#cbd5e1" font-size="10">• SHA-256 integrity verification</text>
-    <text x="20" y="104" fill="#fbbf24" font-size="10" font-weight="600">→ CLI logging + manifests</text>
+    <text x="20" y="72" fill="#cbd5e1" font-size="10">• 取证过程整合</text>
+    <text x="20" y="88" fill="#cbd5e1" font-size="10">• SHA-256 完整性校验</text>
+    <text x="20" y="104" fill="#fbbf24" font-size="10" font-weight="600">→ CLI 日志 + 清单</text>
   </g>
 
-  <!-- Bottom: chain of custody summary -->
+  <!-- 底部:证据链摘要 -->
   <g transform="translate(60, 380)">
     <rect width="580" height="80" rx="10" fill="#1e293b" stroke="#475569" stroke-width="1.5"/>
-    <text x="290" y="22" text-anchor="middle" fill="#f1f5f9" font-size="12" font-weight="700">Chain of Custody (ISO 27037 §6)</text>
-    <text x="20" y="44" fill="#cbd5e1" font-size="10">case_id · evidence_id · operator · witness · write_blocking · transfer_chain</text>
-    <text x="20" y="60" fill="#cbd5e1" font-size="10">integrity_hash · storage · access_control · disposal</text>
+    <text x="290" y="22" text-anchor="middle" fill="#f1f5f9" font-size="12" font-weight="700">证据保管链 (ISO 27037 §6)</text>
+    <text x="20" y="44" fill="#cbd5e1" font-size="10">案件编号 · 证据编号 · 操作员 · 见证人 · 写保护 · 转移链</text>
+    <text x="20" y="60" fill="#cbd5e1" font-size="10">完整性哈希 · 存储位置 · 访问控制 · 销毁方式</text>
   </g>
 </svg>

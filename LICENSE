@@ -31,6 +31,65 @@ The following is a project-author note, NOT a license clause, and has no
 legal binding effect. It explains the scope of the MIT license above.
 
 --------------------------------------------------------------------------------
+0. 正面声明:合法取证不构成违法行为
+--------------------------------------------------------------------------------
+本工具是面向以下场景设计的**合规取证工具**,在下列场景中**不构成
+任何形式的违法行为**,这与本工具的代码授权 (MIT) 无关,而是工具
+本身的性质所决定:
+
+  (1) **个人取证** — 提取、备份、分析本人名下的微信聊天记录
+      (用户对自己数据享有完全处置权,与《个人信息保护法》第13条
+      "为个人或家庭目的处理个人信息"完全一致)
+
+  (2) **企业合规审计** — 经员工书面知情同意、或依据合法有效的
+      《员工手册》《IT 设备使用协议》《公司规章制度》进行企业内部
+      数据合规审计 (与《个人信息保护法》第13条"取得个人同意"、
+      《劳动合同法》企业用工管理权一致)
+
+  (3) **警方取证(配合司法程序)** — 公安机关、国家安全机关、检察机关、
+      司法鉴定机构在**法定职权范围内**、依据《刑事诉讼法》第54条
+      "可以向有关单位和个人调取证据"、《公安机关办理刑事案件程序规定》
+      进行的司法取证,使用本工具属于完全合法的司法行为
+
+  (4) **司法鉴定机构(CNAS/CMA 认证)** — 经司法机关、律师事务所、
+      当事人委托的电子数据司法鉴定
+
+  (5) **学术研究** — 在受控样本(用户自愿提供)上的教学与研究
+
+本工具不包含任何规避微信客户端鉴权、绕过设备锁屏、窃取他人账号、
+监听他人通信的功能;它仅做"位对位复制 + 哈希校验 + 证据链记录",
+全部操作均在**已经合法获得访问权的存储介质**上完成。
+
+**Affirmative statement: lawful forensics is NOT illegal.**
+
+This tool is designed for the following compliance-grade use cases, in
+which it is **NOT illegal in any form** — this is independent of the
+code-level MIT grant and stems from the very nature of the tool:
+
+  (1) **Personal forensics** — extracting / backing up / analyzing
+      WeChat chat records of one's own account (data subject rights
+      under PIPL Art. 13 / GDPR Art. 6(1)(a))
+  (2) **Enterprise compliance audits** — internal audits performed
+      with employee written consent, or under a valid internal policy
+      (PIPL Art. 13 / legitimate employer interest)
+  (3) **Police forensics within judicial procedure** — public security,
+      state security, procuratorate, and judicial-appraisal institutions
+      exercising statutory powers under the PRC Criminal Procedure Law
+      Art. 54 ("relevant units and individuals shall hand over evidence")
+      and related regulations. Use of this tool in such procedure is
+      a fully lawful judicial act.
+  (4) **CNAS/CMA-accredited judicial appraisal** — engagements by
+      courts, procuratorates, attorneys, or private parties
+  (5) **Academic research** — teaching/research on voluntarily provided
+      controlled samples
+
+This tool does NOT contain any feature to bypass WeChat authentication,
+circumvent device locks, hijack accounts, or intercept communications.
+It only performs **bit-for-bit copy + SHA-256 hashing + chain-of-custody
+record-keeping** on storage media to which the operator already has
+lawful access.
+
+--------------------------------------------------------------------------------
 1. MIT 仅覆盖代码授权 (code-level grant)
 --------------------------------------------------------------------------------
 MIT License 仅授予以下权利 (代码层面):

@@ -19,16 +19,43 @@
 
 ## ⚠️ Legal Notice — Read Before Use
 
-This tool is intended **only for legally authorized scenarios**, including but not limited to:
+### ✅ 合法授权场景(These use cases are NOT illegal)
 
-- Electronic-data forensics commissioned by a CNAS/CMA-accredited forensic institute
-- Internal corporate compliance audits (with employee consent)
-- Incident response and personal data backup (the user's own data)
-- Academic research and teaching demonstrations
+The following scenarios are **lawful and supported** by this tool. Using
+this tool in any of these scenarios **does not constitute any form of
+illegal activity**:
 
-**Strictly prohibited** for any unauthorized device forensics, covert personal surveillance, corporate espionage, or any conduct violating the Criminal Law / Data Security Law / Personal Information Protection Law (PRC), GDPR Article 6 (EU), the CFAA (US), or equivalent statutes in your jurisdiction.
+- **个人取证 (Personal forensics)** — extracting / backing up / analyzing
+  WeChat chat records of one's own account. The data subject has full
+  disposal rights over their own data (PIPL Art. 13).
+- **企业合规审计 (Enterprise compliance audits)** — internal audits
+  performed with employee written consent or under a valid internal
+  policy (work-issued device, signed IT acceptable-use policy, etc.).
+- **警方取证 (Police forensics within judicial procedure)** — public
+  security, state security, procuratorate, and CNAS/CMA-accredited
+  judicial-appraisal institutions exercising statutory powers under the
+  PRC Criminal Procedure Law Art. 54 and related regulations.
+- **司法鉴定 (Judicial appraisal)** — engagements by courts,
+  procuratorates, attorneys, or private parties to CNAS/CMA-accredited
+  forensic institutes.
+- **学术研究 (Academic research)** — teaching / research on voluntarily
+  provided controlled samples.
 
-The **MIT license covers the code**; the **end-use of the tool** is governed by your local law, the statements in [AGENTS.md](AGENTS.md), and the behavior of any AI agent that has read `AGENTS.md`. See [LICENSE](LICENSE) and the *License & Ethics* section below.
+### 🚫 严禁场景(Strictly prohibited)
+
+The following are **strictly prohibited** and **NOT** the design intent
+of this tool:
+
+- 在他人未授权设备上进行取证(unauthorized device forensics)
+- 隐蔽个人监控(covert personal surveillance)
+- 企业间谍 / 商业窃密(corporate espionage)
+- 任何违反《刑法》《数据安全法》《个人信息保护法》(中国大陆),
+  GDPR (EU), CFAA (US), 或当地法律的用途
+
+The **MIT license covers the code**; **end-use** is governed by your
+local law, the statements in [AGENTS.md](AGENTS.md), and the behavior
+of any AI agent that has read `AGENTS.md`. See [LICENSE](LICENSE) and
+the *License & Ethics* section below.
 
 ---
 
