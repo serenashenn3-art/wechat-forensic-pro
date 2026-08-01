@@ -11,8 +11,8 @@
 [![AGENTS.md](https://img.shields.io/badge/AGENTS.md-compatible-purple)]()
 [![ISO 27037](https://img.shields.io/badge/compliance-ISO%2FIEC%2027037-informational)]()
 
-> **最近更新**: v2.0.6 — 介绍图全中文化 + 法律声明正面化(合法取证不违法)。
-> 历史版本:v2.0.3 (证据链) · v2.0.4 (i18n + AI Skills) · v2.0.5 (可插拔云盘) · **v2.0.6 (本次)**。详见 [CHANGELOG.md](CHANGELOG.md)。
+> **最近更新**: v2.0.7 — 修复 symlink 文件在 GitHub 显示为空的 BUG(改用普通文件 mirror + 同步脚本)。
+> 历史版本:v2.0.3 (证据链) · v2.0.4 (i18n + AI Skills) · v2.0.5 (可插拔云盘) · v2.0.6 (中文化图 + 法律声明) · **v2.0.7 (本次)**。详见 [CHANGELOG.md](CHANGELOG.md)。
 
 ![WeChat Forensic Pro 概览](assets/diagrams/overview.svg)
 

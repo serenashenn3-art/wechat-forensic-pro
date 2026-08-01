@@ -222,9 +222,39 @@ python -m wechat_forensic.cli --help  # 确保 CLI 入口正常
 
 只有这两条全绿,才能视为完成。
 
-## 兼容性回退
+## 兼容性回退 (v2.0.7+)
 
-如果 Agent 工具不识别 `AGENTS.md` 这个名字(很罕见),它会自动尝试 `AGENT.md`(单数),所以本仓库**同时提供两个文件**:`AGENTS.md` 是规范源,`AGENT.md` 是符号链接(向下兼容)。
+不同 AI Agent 工具对 Agent 规则文件的命名约定不同。本仓库**同时维护
+6 个文件**,内容与 `AGENTS.md` 完全一致(mirror,**不是 symlink**):
+
+| 文件 | 适用工具 |
+|---|---|
+| `AGENTS.md` | 标准名,Cursor / Windsurf / Aider / Trae / Kimi Work / Devin / Jules / Zed / Roo Code / VS Code Copilot / 大部分工具 |
+| `AGENT.md` (单数) | 早期版本兼容性 |
+| `CLAUDE.md` | Anthropic Claude Code |
+| `CODEX.md` | OpenAI Codex |
+| `GEMINI.md` | Google Gemini CLI |
+| `.cursorrules` | Cursor 旧版 |
+| `.cursor/rules` | Cursor 新版 |
+
+### 为什么不继续用 symlink
+
+之前的版本 (≤ v2.0.6) 用 `AGENT.md → AGENTS.md` 这种 symlink,但
+GitHub Web 界面**不渲染 symlink 的目标内容**,而把 symlink 本身显示
+为"9 字节占位符" — 用户看到的是空文件。从 v2.0.7 开始改为普通
+文件副本。
+
+### 如何保持内容一致
+
+每次修改 `AGENTS.md` 后,**必须**运行:
+
+```bash
+bash scripts/sync_agent_compat.sh           # 同步到 6 个副本
+bash scripts/sync_agent_compat.sh --check   # 只检查 (CI 用)
+```
+
+CI 阶段建议加一条 `bash scripts/sync_agent_compat.sh --check`,发现
+漂移就 fail PR,确保 6 个文件永远 = `AGENTS.md`。
 
 ## 参考
 

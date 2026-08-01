@@ -1,5 +1,20 @@
 # 变更日志
 
+## [2.0.7] - 2026-08-02
+
+### 修复 (Symlink → Mirror)
+- **修复 BUG**: 6 个 AI Agent 兼容文件 (`AGENT.md` / `CLAUDE.md` / `CODEX.md` / `GEMINI.md` / `.cursorrules` / `.cursor/rules`) 在 GitHub Web 界面**显示为空**
+- **根因**: 这些文件之前是 `120000 symlink` 模式,GitHub 不渲染 symlink 目标,而把 symlink 自身存为 9 字节占位符(内容 = 目标文件名)
+- **修复**: 全部改为**普通文件副本 (mirror)**, 内容 = `AGENTS.md` 完整内容(10005 字节)
+- **新增 `scripts/sync_agent_compat.sh`**: 防内容漂移,提供 `sync` / `--check` 两种模式,后者适合 CI
+- **AGENTS.md "兼容性回退" 小节重写**: 说明为什么不用 symlink + 怎么用同步脚本
+
+### 同步脚本
+```bash
+bash scripts/sync_agent_compat.sh           # 同步到 6 个副本
+bash scripts/sync_agent_compat.sh --check   # 只检查 (CI 用, 漂移 exit 1)
+```
+
 ## [2.0.6] - 2026-08-02
 
 ### 改进 (图示中文化 + 法律声明正面化)
