@@ -1,0 +1,12 @@
+# WeChat Forensic Extractor Pro - 依赖
+# 必需
+psutil>=5.9.0
+
+# 可选 - 加密压缩 (AES)
+pyzipper>=0.3.5
+
+# 可选 - 阿里云 OSS 上传
+oss2>=2.18.0
+
+# 可选 - 百度网盘上传
+bypy>=1.8.5

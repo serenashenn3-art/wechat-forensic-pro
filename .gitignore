@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.pytest_cache/
+
+# 取证输出 (不要提交任何真实数据)
+wechat_forensic_output/
+wechat_mirrors/
+*.img
+*.dd
+*.zip
+*.7z
+*.tar.gz
+*.tgz
+*.rar
+*.gzip
+
+# 证据文件
+forensic_log.txt
+_forensic_manifest.json
+_forensic_report.json
+_forensic_report.txt
+
+# 数据库 (绝不能进仓库)
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+
+# IDE
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+
+# 临时
+*.log
+*.tmp
+*~
