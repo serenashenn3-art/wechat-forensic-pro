@@ -1,0 +1,50 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "wechat-forensic-pro"
+version = "2.0.2"
+description = "跨平台微信聊天记录取证提取工具链"
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "MIT" }
+authors = [{ name = "WeChat Forensic Pro Contributors" }]
+keywords = ["forensics", "wechat", "chain-of-custody", "evidence", "hashing"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Legal Industry",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Security",
+    "Topic :: System :: Recovery Tools",
+]
+dependencies = [
+    "psutil>=5.9.0",
+]
+
+[project.optional-dependencies]
+crypto = ["pyzipper>=0.3.5"]
+aliyun = ["oss2>=2.18.0"]
+baidu = ["bypy>=1.8.5"]
+dev = ["pytest>=7.0", "pytest-cov>=4.0"]
+all = ["pyzipper>=0.3.5", "oss2>=2.18.0", "bypy>=1.8.5"]
+
+[project.scripts]
+wechat-forensic = "wechat_forensic.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/your-org/wechat-forensic-pro"
+Documentation = "https://github.com/your-org/wechat-forensic-pro/blob/main/AGENTS.md"
+Issues = "https://github.com/your-org/wechat-forensic-pro/issues"
+Source = "https://github.com/your-org/wechat-forensic-pro"
+
+[tool.setuptools.packages.find]
+include = ["wechat_forensic*"]
+exclude = ["tests*", "examples*"]

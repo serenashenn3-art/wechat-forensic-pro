@@ -1,0 +1,67 @@
+name: Bug Report
+description: 报告 WeChat Forensic Extractor Pro 的 Bug
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: 感谢报告 Bug!请填写以下信息以便复现。
+  - type: input
+    id: version
+    attributes:
+      label: 工具版本
+      placeholder: "v2.0.2"
+    validations:
+      required: true
+  - type: dropdown
+    id: os
+    attributes:
+      label: 操作系统
+      options:
+        - Windows 10
+        - Windows 11
+        - macOS 13 Ventura
+        - macOS 14 Sonoma
+        - macOS 15 Sequoia
+        - Ubuntu 22.04
+        - Ubuntu 24.04
+        - 其他 Linux
+    validations:
+      required: true
+  - type: input
+    id: python
+    attributes:
+      label: Python 版本
+      placeholder: "3.10.6"
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: 复现步骤
+      placeholder: |
+        1. 运行 `python -m wechat_forensic.cli --source ...`
+        2. 看到 ...
+    validations:
+      required: true
+  - type: textarea
+    id: expect
+    attributes:
+      label: 期望行为
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: 实际行为 (附错误信息 / 截图)
+    validations:
+      required: true
+  - type: textarea
+    id: legal
+    attributes:
+      label: 合法授权确认
+      description: |
+        请确认你是在**合法授权场景**下使用本工具遇到此问题
+        (司法鉴定委托 / 企业合规审计 / 本人数据 / 学术研究)。
+        未授权场景的问题将被直接关闭。
+    validations:
+      required: true
