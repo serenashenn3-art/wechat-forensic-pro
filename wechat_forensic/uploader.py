@@ -325,12 +325,17 @@ class SFTPUploader(UploaderBase):
 
     必需配置: ``host / port / username``
     可选:     ``password / private_key_path / remote_path / port (默认 22)``
+              ``host_key_policy`` (默认 warning; 可选 reject / auto_add)
+              ``known_hosts`` (默认 ~/.ssh/known_hosts)
     """
 
     name = "sftp"
     display_name = "SFTP (SSH 文件传输)"
     required_deps = ["paramiko"]
-    config_schema_hint = "host, port, username, password/private_key_path, remote_path"
+    config_schema_hint = (
+        "host, port, username, password/private_key_path, remote_path, "
+        "host_key_policy (warning/reject/auto_add), known_hosts"
+    )
 
     def upload(self, file, logger=None, config=None):
         config = config or {}
@@ -340,6 +345,8 @@ class SFTPUploader(UploaderBase):
         pwd = config.get("password")
         key_path = config.get("private_key_path")
         remote_path = config.get("remote_path", "/wechat_forensic/").rstrip("/")
+        policy = config.get("host_key_policy", "warning").lower()
+        known_hosts = config.get("known_hosts") or str(Path.home() / ".ssh" / "known_hosts")
 
         if not (host and user and (pwd or key_path)):
             return self._return_failure(
@@ -354,7 +361,26 @@ class SFTPUploader(UploaderBase):
         try:
             self._log(logger, "info", f"SFTP {user}@{host}:{port} 上传 {file}")
             client = paramiko.SSHClient()
-            client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+
+            # 加载 known_hosts; 不存在则跳过(稍后由 host key policy 决定行为)
+            try:
+                client.load_host_keys(known_hosts)
+            except Exception:
+                pass
+
+            if policy == "reject":
+                client.set_missing_host_key_policy(paramiko.RejectPolicy())
+            elif policy == "auto_add":
+                client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+                self._log(
+                    logger,
+                    "warning",
+                    "SFTP host_key_policy=auto_add: 将自动信任未知主机密钥,存在中间人风险",
+                )
+            else:
+                # 默认 warning: 未知主机继续连接但记录警告(比 AutoAddPolicy 更安全)
+                client.set_missing_host_key_policy(paramiko.WarningPolicy())
+
             connect_kwargs = {"hostname": host, "port": port, "username": user, "timeout": 30}
             if pwd:
                 connect_kwargs["password"] = pwd

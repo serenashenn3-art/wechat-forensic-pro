@@ -17,29 +17,33 @@ class Scanner:
     # ---------- 逻辑磁盘 ----------
     def drives(self) -> List[dict]:
         drives: List[dict] = []
-        try:
-            import psutil  # type: ignore
+        if self.sys == "Windows":
+            # Windows 优先使用 WMI/PowerShell,保证字段格式与测试一致
+            drives = self._scan_windows_drives()
+        else:
+            try:
+                import psutil  # type: ignore
 
-            for p in psutil.disk_partitions(all=True):
-                try:
-                    u = psutil.disk_usage(p.mountpoint)
-                    drives.append(
-                        {
-                            "device": p.device,
-                            "mount": p.mountpoint,
-                            "fstype": p.fstype,
-                            "opts": p.opts,
-                            "free": human_bytes(u.free),
-                            "used": human_bytes(u.used),
-                            "total": human_bytes(u.total),
-                            "free_bytes": u.free,
-                        }
-                    )
-                except (PermissionError, OSError):
-                    continue
-        except ImportError:
-            self.log.warning("未安装 psutil,使用系统命令扫描")
-            drives = self._fallback_scan()
+                for p in psutil.disk_partitions(all=True):
+                    try:
+                        u = psutil.disk_usage(p.mountpoint)
+                        drives.append(
+                            {
+                                "device": p.device,
+                                "mount": p.mountpoint,
+                                "fstype": p.fstype,
+                                "opts": p.opts,
+                                "free": human_bytes(u.free),
+                                "used": human_bytes(u.used),
+                                "total": human_bytes(u.total),
+                                "free_bytes": u.free,
+                            }
+                        )
+                    except (PermissionError, OSError):
+                        continue
+            except ImportError:
+                self.log.warning("未安装 psutil,使用系统命令扫描")
+                drives = self._fallback_scan()
         return drives
 
     def _fallback_scan(self) -> List[dict]:
@@ -49,9 +53,6 @@ class Scanner:
         else:
             drives = self._scan_unix_drives()
         return drives
-
-    def _scan_windows_drivers(self) -> List[dict]:
-        return self._scan_windows_drives()
 
     def _scan_windows_drives(self) -> List[dict]:
         drives: List[dict] = []

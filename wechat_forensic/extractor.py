@@ -117,14 +117,16 @@ class Extractor:
                     r = Path(root).relative_to(src)
                     d = dst / r
                     d.mkdir(parents=True, exist_ok=True)
-                    shutil.copy2(s, d / f)
-                    sha256 = Hasher.sha256_file(str(s))
+                    dst_file = d / f
+                    shutil.copy2(s, dst_file)
+                    # 校验目标文件哈希,确保复制结果完整
+                    sha256 = Hasher.sha256_file(str(dst_file))
                     copied.append(
                         {
                             "src": str(s),
-                            "dst": str(d / f),
+                            "dst": str(dst_file),
                             "sha256": sha256,
-                            "size": s.stat().st_size,
+                            "size": dst_file.stat().st_size,
                         }
                     )
                 except Exception as e:

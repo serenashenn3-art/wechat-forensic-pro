@@ -27,6 +27,8 @@ def test_text_report_has_real_newlines(stub_logger, tmp_path):
 
 def test_json_report_structure(stub_logger, tmp_path):
     import json
+    from wechat_forensic import __version__
+
     ReportGenerator.generate(
         str(tmp_path),
         [{"step": "测试"}],
@@ -34,9 +36,9 @@ def test_json_report_structure(stub_logger, tmp_path):
     )
     json_path = tmp_path / "_forensic_report.json"
     data = json.loads(json_path.read_text(encoding="utf-8"))
-    # v2.0.3 schema: tool 是 dict
+    # schema: tool 是 dict, version 与当前包版本一致
     assert data["tool"]["name"].startswith("WeChat Forensic Extractor Pro")
-    assert data["tool"]["version"] == "2.0.3"
+    assert data["tool"]["version"] == __version__
     assert "operations" in data
     assert "chain_of_custody" in data
     assert "compliance" in data

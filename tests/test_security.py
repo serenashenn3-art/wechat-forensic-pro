@@ -42,8 +42,8 @@ def test_sign_report_produces_hmac_signature(stub_logger, tmp_path, monkeypatch)
     assert sig_data["report_sha256"] == sig["report_sha256"]
 
 
-def test_sign_report_without_key_uses_insecure_default(stub_logger, tmp_path, monkeypatch):
-    """不设置 WECHAT_FORENSIC_HMAC_KEY 时, 仍可签名 (但不安全, README 已说明)"""
+def test_sign_report_without_key_rejected(stub_logger, tmp_path, monkeypatch):
+    """不设置 WECHAT_FORENSIC_HMAC_KEY 时, 应拒绝签名而不是使用不安全默认值"""
     from wechat_forensic.security import sign_report
 
     monkeypatch.delenv("WECHAT_FORENSIC_HMAC_KEY", raising=False)
@@ -51,6 +51,8 @@ def test_sign_report_without_key_uses_insecure_default(stub_logger, tmp_path, mo
     report.write_text("{}", encoding="utf-8")
     sig = sign_report(str(report))
     assert sig["signature_algorithm"] == "HMAC-SHA256"
+    assert "error" in sig
+    assert "WECHAT_FORENSIC_HMAC_KEY" in sig["error"]
 
 
 def test_report_generator_with_case_id(stub_logger, tmp_path):

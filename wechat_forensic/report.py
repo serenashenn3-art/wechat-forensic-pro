@@ -9,6 +9,7 @@ import sys
 from pathlib import Path
 from typing import List, Optional
 
+from . import __version__
 from .security import chain_of_custody_template
 
 
@@ -35,10 +36,10 @@ class ReportGenerator:
         """
         report = {
             "report_id": f"WFE-{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}",
-            "report_version": "2.0.3",
+            "report_version": __version__,
             "tool": {
                 "name": "WeChat Forensic Extractor Pro",
-                "version": "2.0.3",
+                "version": __version__,
                 "url": "https://github.com/serenashenn3-art/wechat-forensic-pro",
             },
             "generated_at_utc": datetime.datetime.now(datetime.timezone.utc).isoformat(),

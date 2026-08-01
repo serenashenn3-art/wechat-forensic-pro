@@ -83,17 +83,25 @@ def sign_report(report_path: str, private_key_pem: Optional[bytes] = None) -> di
                 )
             ).hexdigest()
         except ImportError:
-            sig_info["error"] = "cryptography 库未安装,回退到 HMAC 模式"
+            sig_info["error"] = "cryptography 库未安装,HMAC 模式需设置 WECHAT_FORENSIC_HMAC_KEY"
             sig_info["signature_b64"], sig_info["key_fingerprint_sha256"] = _hmac_sign(report_sha256)
             sig_info["signature_algorithm"] = "HMAC-SHA256"
     else:
-        sig_info["signature_b64"], sig_info["key_fingerprint_sha256"] = _hmac_sign(report_sha256)
-        sig_info["signature_algorithm"] = "HMAC-SHA256"
+        try:
+            sig_info["signature_b64"], sig_info["key_fingerprint_sha256"] = _hmac_sign(report_sha256)
+            sig_info["signature_algorithm"] = "HMAC-SHA256"
+        except MissingHMACKeyError as e:
+            sig_info["error"] = str(e)
+            sig_info["signature_algorithm"] = "HMAC-SHA256"
 
     sig_path = Path(report_path).parent / "_signature.json"
     with open(sig_path, "w", encoding="utf-8") as f:
         json.dump(sig_info, f, ensure_ascii=False, indent=2)
     return sig_info
+
+
+class MissingHMACKeyError(RuntimeError):
+    """未设置 HMAC 密钥时抛出,拒绝使用不安全默认值签名。"""
 
 
 def _hmac_sign(message: str) -> tuple:
@@ -106,11 +114,17 @@ def _hmac_sign(message: str) -> tuple:
     Forensic note: NEVER write the plain key to disk/log/report. The fingerprint
     is sufficient to verify that the same key was used, without revealing the key
     itself. This is the standard pattern for evidence-package key handling.
+
+    Raise:
+        MissingHMACKeyError: 环境变量 WECHAT_FORENSIC_HMAC_KEY 未设置或为空。
     """
-    key = os.environ.get(
-        "WECHAT_FORENSIC_HMAC_KEY",
-        "default-insecure-key-set-WECHAT_FORENSIC_HMAC_KEY-env-var",
-    ).encode("utf-8")
+    key_str = os.environ.get("WECHAT_FORENSIC_HMAC_KEY", "").strip()
+    if not key_str:
+        raise MissingHMACKeyError(
+            "未设置 WECHAT_FORENSIC_HMAC_KEY 环境变量,HMAC 签名被拒绝。"
+            "请为每案生成独立密钥并导出该变量后再试。"
+        )
+    key = key_str.encode("utf-8")
     sig = hmac.new(key, message.encode("utf-8"), hashlib.sha256).digest()
     fingerprint = hashlib.sha256(key).hexdigest()
     return base64.b64encode(sig).decode("ascii"), fingerprint

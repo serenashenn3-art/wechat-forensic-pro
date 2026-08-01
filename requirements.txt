@@ -10,3 +10,15 @@ oss2>=2.18.0
 
 # 可选 - 百度网盘上传
 bypy>=1.8.5
+
+# 可选 - S3 兼容对象存储 (AWS S3 / 腾讯 COS / 七牛 / MinIO 等)
+boto3>=1.28.0
+
+# 可选 - WebDAV 协议 (坚果云 / Nextcloud / ownCloud 等)
+webdavclient3>=3.14.5
+
+# 可选 - SFTP (SSH 文件传输)
+paramiko>=3.0.0
+
+# 可选 - YAML 配置文件解析
+PyYAML>=6.0
