@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) 2026 WeChat Forensic Extractor Pro Contributors
+Copyright (c) 2026 WeChat Forensic Pro Contributors
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -21,19 +21,76 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 ================================================================================
-LEGAL & ETHICAL NOTICE (附加条款 / SUPPLEMENTARY CLAUSE)
+SCOPE OF LICENSE / 关于本许可证的范围 (Project Author's Note)
 ================================================================================
 
-This tool is provided for AUTHORIZED forensic use only, including but not
-limited to:
-  - Court-commissioned electronic data forensics by certified institutions
-  - Internal corporate compliance audits with employee consent
-  - Incident response and personal data backup
-  - Academic research and educational demonstrations
+本节由项目维护者 (Project Authors) 撰写, 非许可证条款, 不具有法律约束力,
+仅作为对本许可证 (MIT) 适用范围的解释, 避免误用。
 
-Use of this tool on devices or data without proper legal authorization is
-strictly prohibited and may violate the Criminal Law, the Data Security Law,
-and the Personal Information Protection Law of the People's Republic of China,
-as well as equivalent legislation in other jurisdictions. By using this
-software, you acknowledge and accept full responsibility for ensuring your
-use complies with all applicable laws.
+The following is a project-author note, NOT a license clause, and has no
+legal binding effect. It explains the scope of the MIT license above.
+
+--------------------------------------------------------------------------------
+1. MIT 仅覆盖代码授权 (code-level grant)
+--------------------------------------------------------------------------------
+MIT License 仅授予以下权利 (代码层面):
+  - 复制 / 修改 / 合并 / 发布 / 分发 / 再授权 / 销售本软件
+  - 用于任何目的 (包括商业用途)
+
+MIT 许可证 **不包含** 任何对软件最终用途 (end-use) 的限制。
+这是所有主流开源许可证的通性, 而非本项目特殊之处。
+
+The MIT License grants only code-level rights (use, copy, modify, merge,
+publish, distribute, sublicense, sell) for any purpose, including commercial.
+MIT does NOT impose end-use restrictions; this is universal to all
+mainstream open-source licenses, not a quirk of this project.
+
+--------------------------------------------------------------------------------
+2. 使用行为约束不在 MIT 范围内 (end-use is governed by other rules)
+--------------------------------------------------------------------------------
+对本工具的使用行为 (end-use) 受到以下三层独立约束, 这些约束 **不** 来自
+本 LICENSE, 而是来自:
+
+  (a) 你所在司法辖区的现行法律法规
+      Examples:
+      - 中国大陆: 《刑法》第285条、《数据安全法》、《个人信息保护法》
+      - 欧盟: GDPR Article 6
+      - 美国: CFAA (Computer Fraud and Abuse Act) + 州法律
+
+  (b) 本项目维护者发布的相关声明, 见:
+      - AGENTS.md § "法律红线" (top section)
+      - README.md § "法律声明"
+      - CONTRIBUTING.md § "提交前必读"
+
+  (c) AI 工具的行为约束 (当 AI 工具读取 AGENTS.md 后自动遵守)
+
+  End-use of this tool is governed by three independent layers (jurisdiction,
+  project statements, and AI-agent behavior), NOT by this LICENSE file.
+
+--------------------------------------------------------------------------------
+3. 违反使用行为约束的法律后果 (consequences)
+--------------------------------------------------------------------------------
+违反上述使用行为约束 **不会** 自动吊销你的 MIT 代码授权 (因为 MIT 本身
+没有 end-use 条款), 但:
+
+  - 违反当地法律会导致你个人承担全部法律责任
+  - 项目维护者保留从分发渠道 (PyPI / GitHub Releases) 撤回侵权分发的权利
+  - AI 工具会主动拒绝协助违规使用
+
+  Violating the end-use constraints does NOT automatically revoke your
+  MIT-granted rights (because MIT contains no end-use clause), BUT it may
+  result in personal legal liability, removal of infringing distributions,
+  and AI-agent refusal to assist.
+
+--------------------------------------------------------------------------------
+4. 本节不构成法律意见 (no legal advice)
+--------------------------------------------------------------------------------
+本节由项目维护者根据对开源许可证的通用理解撰写, 不构成法律意见。
+如需针对具体场景的合规判断, 请咨询你所在司法辖区的执业律师。
+
+The above is the project authors' understanding of MIT, not legal advice.
+For case-specific compliance, consult a licensed attorney in your jurisdiction.
+
+================================================================================
+END OF LICENSE FILE
+================================================================================
