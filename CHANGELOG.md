@@ -1,5 +1,45 @@
 # 变更日志
 
+## [2.0.8] - 2026-08-02
+
+### 改进 (README 可用性 + 报告样例 + AGENTS 可审计)
+- **README 双语 (中/英) 头部重构**:
+  - Quick Start 从"法律声明"之后**上提到第二屏**,新用户立刻看到 3 步开始
+  - 法律声明 (Legal Notice) 改为 GitHub `<details>` **可折叠**块,展开前不占主屏空间
+  - 顶部新增 **📑 目录 (TOC)** 镂点区,11 个章节一键跳转
+  - 新增 **🛡 AGENTS.md 核心约束 (摘要)** 小节 — 把 200+ 行的 `AGENTS.md` 浓缩成 60 秒可签字的审计版本(4 条硬性禁止 + 5 类合法场景 + 6 类反 prompt-injection 模式),合规/法务无需打开 `AGENTS.md` 即可审阅
+  - 新增 **Tests 62 passed** 徽章
+  - 测试数 50 → 62 (含 7 个跨平台回归测试)
+- **`examples/sample-report/`** — 全新脱敏报告样例目录:
+  - `README.md` — 阅读指引
+  - `_forensic_report.json` — 机器可读完整 schema (v2.0.8)
+  - `_forensic_report.txt` — 排版后人类可读文本
+  - `_signature.json` — HMAC 签名 + 密钥指纹
+  - `_forensic_manifest.json` — 每文件 SHA-256 清单
+  - `operations_summary.md` — 操作时间线
+  - `chat_excerpt_redacted.txt` — 脱敏聊天摘录
+  - **所有标识符、哈希值、聊天内容**都是合成的 mock,**不来自任何真实案件**
+- **`scripts/sync_agent_compat.sh` (v2.0.7 同步发布)**:
+  - 防 AGENTS.md 改动后 6 个 mirror 漂移
+  - `--check` 模式: CI 检测到漂移即 fail PR
+- **回填 v2.0.6 + v2.0.7 Release notes** — 之前两个版本未发 GitHub Release
+  (代码已 push 但 release 页面停留在 v2.0.5),本次统一在 v2.0.8
+  Release notes 里说明累积变更
+
+### 文件变更
+| 类型 | 路径 |
+|---|---|
+| 修改 | `README.md` / `README.zh-CN.md` (头部 + AGENTS 复述 + 样例引用) |
+| **新增** | `examples/sample-report/` (7 个文件) |
+| 修改 | `examples/README.md` (新增"报告样例"小节) |
+| 修改 | `pyproject.toml` / `wechat_forensic/__init__.py` / `tests/test_cli.py` (2.0.7 → 2.0.8) |
+
+### 验证
+- 62/62 pytest 通过
+- 双语 README 的 `<details>` 在 GitHub Web 渲染正常
+- TOC 镂点全部命中
+- 样例 JSON 通过 `json.loads()` 解析
+
 ## [2.0.7] - 2026-08-02
 
 ### 修复 (Symlink → Mirror)

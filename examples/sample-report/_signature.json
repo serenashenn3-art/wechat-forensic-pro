@@ -1,0 +1,20 @@
+{
+  "report_path": "SAMPLE-PATH/demo-output/_forensic_report.json",
+  "report_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "report_id": "WFE-20260802140000-SAMPLE",
+  "signed_at": "2026-08-02T14:00:30Z",
+  "signature_algorithm": "HMAC-SHA256",
+  "signature_b64": "SAMPLE_SIGNATURE_BASE64_STRING_NOT_A_REAL_SIGNATURE_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx==",
+  "key_fingerprint_sha256": "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08",
+  "compliance": {
+    "iso_27037": "Chain of Custody and identification present",
+    "rfc_3227": "Use copies, avoid contamination, record everything",
+    "note": "Sample signature only — DO NOT use for any real case. The key fingerprint above is the SHA-256 of a sample placeholder string, not a real secret."
+  },
+  "sample_metadata": {
+    "sample": true,
+    "sample_id": "WFE-SAMPLE-v2.0.8-001",
+    "intended_use": "schema demo",
+    "warning": "All values are synthetic. The signature_b64 is not a valid HMAC of the report_sha256 above."
+  }
+}

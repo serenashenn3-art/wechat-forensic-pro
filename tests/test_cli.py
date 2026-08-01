@@ -13,7 +13,7 @@ def test_cli_version():
     )
     assert r.returncode == 0
     assert "wechat-forensic" in r.stdout
-    assert "2.0.7" in r.stdout
+    assert "2.0.8" in r.stdout
 
 
 def test_cli_help():
