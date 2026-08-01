@@ -1,6 +1,6 @@
 # WeChat Forensic Extractor Pro
 
-> **Cross-platform WeChat chat-record forensic extraction toolchain · v2.0.3**
+> **Cross-platform WeChat chat-record forensic extraction toolchain · v2.0.6**
 > Bit-for-bit mirroring · SHA-256 verification · Full Chain of Custody · Digital signatures
 >
 > **Languages**: [English](README.md) · [简体中文](README.zh-CN.md)
@@ -11,7 +11,7 @@
 [![AGENTS.md](https://img.shields.io/badge/AGENTS.md-compatible-purple)]()
 [![ISO 27037](https://img.shields.io/badge/compliance-ISO%2FIEC%2027037-informational)]()
 
-> **Latest**: v2.0.3 hardens Chain of Custody, digital signatures, WeChat DB encryption disclosure, and compliance framework references. See [CHANGELOG.md](CHANGELOG.md).
+> **Latest**: v2.0.6 — diagrams fully localized to Chinese + legal notice affirms lawful forensics is not illegal. See [CHANGELOG.md](CHANGELOG.md) for the full history of v2.0.3 → v2.0.6.
 
 ![WeChat Forensic Pro Overview](assets/diagrams/overview.svg)
 
@@ -214,13 +214,13 @@ wechat_forensic_output/
 └── wechat_forensic_output_*.zip    # zipped package (with SHA-256)
 ```
 
-### JSON Report Schema (v2.0.3)
+### JSON Report Schema (v2.0.6)
 
 ```jsonc
 {
   "report_id": "WFE-20260801154024",
-  "report_version": "2.0.3",
-  "tool": { "name": "WeChat Forensic Extractor Pro", "version": "2.0.3" },
+  "report_version": "2.0.6",
+  "tool": { "name": "WeChat Forensic Extractor Pro", "version": "2.0.6" },
   "generated_at_utc": "2026-08-01T07:40:24.123Z",
   "environment": {
     "operator": "forensic-officer-01",
@@ -268,7 +268,24 @@ wechat_forensic_output/
 }
 ```
 
-The HMAC key is read from the `WECHAT_FORENSIC_HMAC_KEY` environment variable — **set it in production**.
+The HMAC key is read from the `WECHAT_FORENSIC_HMAC_KEY` environment variable.
+
+#### 🔐 HMAC 密钥管理规范 (forensic key handling)
+
+> **Forensic reality**: in a judicial procedure, the signature key is itself evidence-grade
+> material. Its handling must be auditable, and the key MUST NEVER be co-located with the
+> signed evidence package (otherwise the signature is meaningless).
+
+| Requirement | How |
+|---|---|
+| **Use a unique key per case** | Generate fresh: `python -c "import secrets; print(secrets.token_hex(32))"` |
+| **Distribute via an independent secure channel** | Encrypted email / hardware token / out-of-band phone — NOT the same channel that delivers the evidence zip |
+| **Store separately from the evidence package** | Evidence → case archive (e.g. encrypted external drive); key → key vault / HSM / sealed envelope with the case officer |
+| **Record the key's SHA-256 hash, NOT the key itself, in the report** | The signed `_signature.json` contains the **fingerprint** of the key (verifiable without exposing it). The plain key is **never** written to disk, log, or report. |
+| **Rotate / destroy after case closure** | Per your institute's key-retention policy. The `_signature.json` remains valid for verification because it stores the fingerprint. |
+
+> Without the above, a court may rule the signature self-serving and inadmissible. Treat
+> the HMAC key with the same rigor as a forensic sample seal.
 
 ---
 
@@ -358,8 +375,13 @@ See [`examples/uploaders/`](examples/uploaders/) for **Tencent COS** and **Qiniu
 - **Algorithm**: SQLCipher (AES-256-CBC)
 - **Key derivation**: `MD5(IMEI + UIN)[0:7]` (first 7 chars of MD5)
 - **This tool**: only performs bit-for-bit extraction; **decryption is NOT included**
-- **Decryption references**: [wechat-dbcracker](https://github.com/Hill1976/WechatExporter), wxsqlcipher
-- **Legal note**: decrypting someone else's WeChat data still requires lawful authorization
+- **Position on decryption**: this project does not provide, document, or endorse any specific
+  EnMicroMsg.db decryption method. Independent academic / forensic research on the SQLCipher
+  key-derivation algorithm exists in the broader community; users who already have lawful
+  access to the device and need to view the chat content should consult their
+  CNAS/CMA-accredited forensic institute or follow their internal standard operating procedure.
+- **Legal note**: decrypting someone else's WeChat data still requires lawful authorization.
+  This tool's role stops at producing a verifiable, hashed copy of the source data.
 
 ---
 
@@ -406,7 +428,7 @@ git clone https://github.com/serenashenn3-art/wechat-forensic-pro.git
 cd wechat-forensic-pro
 pip install -e ".[dev,all]"
 
-# Run tests (29 cases, covers key bug fixes)
+# Run tests (50 cases, covers key bug fixes incl. 7 cross-platform regressions)
 pytest tests/ -v --cov=wechat_forensic
 
 # One-shot check (lint + test + CLI smoke)
@@ -482,11 +504,17 @@ Violating the end-use constraint **does not** automatically revoke your code gra
 
 ## Related Projects
 
-- [wechat-dbcracker](https://github.com/Hill1976/WechatExporter) — EnMicroMsg.db decryption reference
-- [WxSqlcipher](https://github.com/ppwwyyxx/wechat-dump) — WeChat database export
 - [Autopsy](https://www.autopsy.com/) — commercial forensic platform (Windows)
 - [Sleuth Kit](https://www.sleuthkit.org/) — open-source forensic framework
+- [Plaso / log2timeline](https://github.com/log2timeline/plaso) — super-timeline generation
+- [Eric Zimmerman's tools](https://ericzimmerman.github.io/) — Windows forensic utilities
+
+> This project does not list or endorse any specific EnMicroMsg.db / SQLCipher decryption
+> tooling. Users requiring database decryption are referred to their internal SOP or
+> CNAS/CMA-accredited forensic institute.
 
 ---
 
-**Last updated**: 2026-08-02 · v2.0.3 · Made for **legal forensics** by authorized practitioners only.
+**Last updated**: 2026-08-02 · v2.0.6 · Made for **legal forensics** by authorized practitioners only.
+
+> Version history: v2.0.3 (Chain of Custody) · v2.0.4 (i18n + AI Skills) · v2.0.5 (pluggable cloud upload) · **v2.0.6 (Chinese diagrams + legal clarification)**. Each version is independently usable; see [CHANGELOG.md](CHANGELOG.md) for the full record.

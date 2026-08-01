@@ -1,6 +1,6 @@
 # WeChat Forensic Extractor Pro · 微信取证提取工具 Pro
 
-> **跨平台微信聊天记录取证提取工具链 · v2.0.3**
+> **跨平台微信聊天记录取证提取工具链 · v2.0.6**
 > 位对位镜像 · SHA-256 校验 · 完整 Chain of Custody · 数字签名
 >
 > **语言版本**: [English](README.md) · [简体中文](README.zh-CN.md)
@@ -11,7 +11,8 @@
 [![AGENTS.md](https://img.shields.io/badge/AGENTS.md-compatible-purple)]()
 [![ISO 27037](https://img.shields.io/badge/compliance-ISO%2FIEC%2027037-informational)]()
 
-> **最近更新**: v2.0.3 补强证据链 / 数字签名 / 微信加密提示 / 合规框架引用。详见 [CHANGELOG.md](CHANGELOG.md)。
+> **最近更新**: v2.0.6 — 介绍图全中文化 + 法律声明正面化(合法取证不违法)。
+> 历史版本:v2.0.3 (证据链) · v2.0.4 (i18n + AI Skills) · v2.0.5 (可插拔云盘) · **v2.0.6 (本次)**。详见 [CHANGELOG.md](CHANGELOG.md)。
 
 ![WeChat Forensic Pro 概览](assets/diagrams/overview.svg)
 
@@ -217,13 +218,13 @@ wechat_forensic_output/
 └── wechat_forensic_output_*.zip    # 压缩包 (带 SHA-256)
 ```
 
-### JSON 报告结构 (v2.0.3 schema)
+### JSON 报告结构 (v2.0.6 schema)
 
 ```jsonc
 {
   "report_id": "WFE-20260801154024",
-  "report_version": "2.0.3",
-  "tool": { "name": "WeChat Forensic Extractor Pro", "version": "2.0.3" },
+  "report_version": "2.0.6",
+  "tool": { "name": "WeChat Forensic Extractor Pro", "version": "2.0.6" },
   "generated_at_utc": "2026-08-01T07:40:24.123Z",
   "environment": {
     "operator": "forensic-officer-01",
@@ -271,7 +272,24 @@ wechat_forensic_output/
 }
 ```
 
-HMAC 密钥从环境变量 `WECHAT_FORENSIC_HMAC_KEY` 读取,**生产环境务必设置**。
+HMAC 密钥从环境变量 `WECHAT_FORENSIC_HMAC_KEY` 读取。
+
+#### 🔐 HMAC 密钥管理规范(司法取证场景)
+
+> **取证现实**: 在司法程序中,签名密钥本身就是证据级材料。它的
+> 处理必须可审计,且密钥**绝不能**与已签名的证据包放在一起传输
+> (否则签名无意义)。
+
+| 要求 | 怎么做 |
+|---|---|
+| **每案使用独立密钥** | 生成新密钥:`python -c "import secrets; print(secrets.token_hex(32))"` |
+| **通过独立安全渠道分发** | 加密邮件 / 硬件 token / 线下交付 — 不能用传输证据 zip 的同一渠道 |
+| **与证据包分开存储** | 证据 → 案件档案 (加密外置硬盘);密钥 → 密钥保险柜 / HSM / 与案件负责人共同封存 |
+| **报告中只记录密钥的 SHA-256 指纹,绝不记录明文** | `_signature.json` 中包含密钥的 fingerprint(可核验身份但不暴露明文)。明文密钥**绝不**写入磁盘 / 日志 / 报告 |
+| **案件结案后轮换 / 销毁** | 按你所在机构的密钥保留策略执行。`_signature.json` 仍可用于事后核验,因为它存的是 fingerprint |
+
+> 不遵守以上规范,法院可能认定签名"自证无效"而**不予采信**。
+> 请以"证据样本封条"的同等严肃性对待 HMAC 密钥。
 
 ---
 
@@ -291,8 +309,13 @@ HMAC 密钥从环境变量 `WECHAT_FORENSIC_HMAC_KEY` 读取,**生产环境务�
 - **算法**: SQLCipher (AES-256-CBC)
 - **密钥**: `MD5(IMEI + UIN)[0:7]`(取 MD5 前 7 字符)
 - **本工具**: 只做位对位提取,**不包含解密逻辑**
-- **解密参考**: [wechat-dbcracker](https://github.com/Hill1976/WechatExporter), wxsqlcipher
-- **法律提示**: 解密他人微信数据仍需合法授权
+- **对解密功能的态度**: 本项目**不提供、不记录、不背书**任何具体的
+  EnMicroMsg.db 解密方法。SQLCipher 密钥派生算法在更广泛的研究社区
+  有独立的学术 / 取证研究;已经合法获得设备访问权、并需要查看聊天
+  内容的用户,请咨询你所在司法辖区的 CNAS / CMA 司法鉴定机构,
+  或遵循你所在单位的内部标准操作流程 (SOP)
+- **法律提示**: 解密他人微信数据仍需合法授权。本工具的职责止于
+  生成一份可验证、已哈希的源数据副本
 
 ---
 
@@ -416,11 +439,15 @@ MIT 许可证本身**仅覆盖代码层面的使用、复制、修改、分发�
 
 ## 相关项目 (Related)
 
-- [wechat-dbcracker](https://github.com/Hill1976/WechatExporter) — EnMicroMsg.db 解密参考
-- [WxSqlcipher](https://github.com/ppwwyyxx/wechat-dump) — 微信数据库导出
 - [Autopsy](https://www.autopsy.com/) — 商业取证平台(Windows)
 - [Sleuth Kit](https://www.sleuthkit.org/) — 开源取证框架
+- [Plaso / log2timeline](https://github.com/log2timeline/plaso) — 超时间线生成
+- [Eric Zimmerman's tools](https://ericzimmerman.github.io/) — Windows 取证工具集
+
+> 本项目不列出或背书任何具体的 EnMicroMsg.db / SQLCipher 解密工具。
+> 需要数据库解密的用户请遵循单位内部 SOP 或咨询 CNAS / CMA
+> 司法鉴定机构。
 
 ---
 
-**最后更新**: 2026-08-02 · v2.0.3 · Made for **legal forensics** by authorized practitioners only.
+**最后更新**: 2026-08-02 · v2.0.6 · Made for **legal forensics** by authorized practitioners only.

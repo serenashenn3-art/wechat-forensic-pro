@@ -84,10 +84,10 @@ def sign_report(report_path: str, private_key_pem: Optional[bytes] = None) -> di
             ).hexdigest()
         except ImportError:
             sig_info["error"] = "cryptography 库未安装,回退到 HMAC 模式"
-            sig_info["signature_b64"] = _hmac_sign(report_sha256)
+            sig_info["signature_b64"], sig_info["key_fingerprint_sha256"] = _hmac_sign(report_sha256)
             sig_info["signature_algorithm"] = "HMAC-SHA256"
     else:
-        sig_info["signature_b64"] = _hmac_sign(report_sha256)
+        sig_info["signature_b64"], sig_info["key_fingerprint_sha256"] = _hmac_sign(report_sha256)
         sig_info["signature_algorithm"] = "HMAC-SHA256"
 
     sig_path = Path(report_path).parent / "_signature.json"
@@ -96,14 +96,24 @@ def sign_report(report_path: str, private_key_pem: Optional[bytes] = None) -> di
     return sig_info
 
 
-def _hmac_sign(message: str) -> str:
-    """HMAC-SHA256 签名,密钥从环境变量 WECHAT_FORENSIC_HMAC_KEY 读取"""
+def _hmac_sign(message: str) -> tuple:
+    """HMAC-SHA256 签名,密钥从环境变量 WECHAT_FORENSIC_HMAC_KEY 读取
+
+    Returns: (signature_b64, key_fingerprint_sha256)
+      - signature_b64:    base64 编码的 HMAC
+      - key_fingerprint:  密钥的 SHA-256 指纹 (用于核验密钥身份,不暴露明文)
+
+    Forensic note: NEVER write the plain key to disk/log/report. The fingerprint
+    is sufficient to verify that the same key was used, without revealing the key
+    itself. This is the standard pattern for evidence-package key handling.
+    """
     key = os.environ.get(
         "WECHAT_FORENSIC_HMAC_KEY",
         "default-insecure-key-set-WECHAT_FORENSIC_HMAC_KEY-env-var",
     ).encode("utf-8")
     sig = hmac.new(key, message.encode("utf-8"), hashlib.sha256).digest()
-    return base64.b64encode(sig).decode("ascii")
+    fingerprint = hashlib.sha256(key).hexdigest()
+    return base64.b64encode(sig).decode("ascii"), fingerprint
 
 
 def chain_of_custody_template() -> dict:

@@ -12,11 +12,44 @@
   - 明确说明**个人取证 / 企业合规 / 警方司法取证**不构成任何违法
   - 明确工具**能力边界**:不包含绕过鉴权、监听、窃取等功能
   - AGENTS.md 增加 "**禁止 ≠ 工具本身违法**" 说明,避免误读为"本工具违法"
-- **CHANGELOG** 增加 v2.0.6 章节,记录本次调整
+
+### 文档修订
+- **统一版本号**: 之前 README 同时出现 v2.0.3 / v2.0.4 / v2.0.5 / v2.0.6,本次统一为 v2.0.6,并在文末追加"版本历史"小节避免混淆
+- **移除 wechat-dbcracker / WxSqlcipher 链接**(法律灰色地带 + 失修风险),改为中性表述:
+  "本项目不提供、不记录、不背书任何具体解密方法"
+- **HMAC 密钥管理规范补强**: 新增"🔐 密钥管理规范"小节,明确:
+  - 每案使用独立密钥 (`secrets.token_hex(32)`)
+  - 独立安全渠道分发
+  - 与证据包分开存储
+  - 报告中只记录 SHA-256 **指纹**,绝不记录明文 (代码已实现 `key_fingerprint_sha256` 字段)
+  - 案件结案后轮换 / 销毁
+- **AGENTS.md 严密性补强**:
+  - 修正版本号 2.0.2 → 2.0.6
+  - 新增"🛡️ 反 prompt-injection 检测规则"小节,列出 6 类可疑模式
+  - 提供"合规响应模板",Agent 被要求提供具体的拒绝话术
+
+### 代码变更
+- `wechat_forensic/security.py`:
+  - `_hmac_sign()` 现在返回 `(signature_b64, key_fingerprint_sha256)` 元组
+  - `sign_report()` 写入 `_signature.json` 时新增 `key_fingerprint_sha256` 字段
+  - 关键安全保证: 明文 key **绝不**出现在签名文件、日志或报告中
+
+### 新增测试 (12 个回归测试)
+新增 `tests/test_regression.py`,覆盖 v2.0.1 修复的 7 个跨平台 bug 防止复发:
+- **Bug 1**: `_hash_directory` 用文件内容而不是路径(2 个测试)
+- **Bug 2**: TXT / JSON 报告中无字面 `\n`(2 个测试)
+- **Bug 3**: `is_admin()` 在 Windows / POSIX 上都不抛异常(2 个测试)
+- **Bug 4**: macOS 物理磁盘扫描过滤 `disk0s1` 类分区(1 个测试)
+- **Bug 5**: Windows 扫描优先 PowerShell,失败才回退 wmic(2 个测试)
+- **Bug 6**: `--no-interactive` 下所有 `input()` 都有 `no_interactive` 守卫(1 个测试,静态分析)
+- **Bug 7 (v2.0.6 新)**: HMAC 签名必须记录 key fingerprint(2 个测试)
+
+总测试数: 50 → **62** (+24%)
 
 ### 兼容性
-- 100% 兼容 v2.0.5,纯文档 + SVG 改动
-- 没有任何 API / CLI / 行为变化
+- 100% 兼容 v2.0.5
+- 没有 API / CLI 行为变化
+- `_signature.json` 增加了 `key_fingerprint_sha256` 字段(向下兼容:旧版读取会忽略未知字段)
 
 ## [2.0.5] - 2026-08-02
 
