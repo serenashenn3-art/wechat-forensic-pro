@@ -331,7 +331,7 @@ class SFTPUploader(UploaderBase):
 
     必需配置: ``host / port / username``
     可选:     ``password / private_key_path / remote_path / port (默认 22)``
-              ``host_key_policy`` (默认 warning; 可选 reject / auto_add)
+              ``host_key_policy`` (默认 reject; 可选 warning / auto_add)
               ``known_hosts`` (默认 ~/.ssh/known_hosts)
     """
 
@@ -351,7 +351,7 @@ class SFTPUploader(UploaderBase):
         pwd = config.get("password")
         key_path = config.get("private_key_path")
         remote_path = config.get("remote_path", "/wechat_forensic/").rstrip("/")
-        policy = config.get("host_key_policy", "warning").lower()
+        policy = config.get("host_key_policy", "reject").lower()
         known_hosts = config.get("known_hosts") or str(Path.home() / ".ssh" / "known_hosts")
 
         if not (host and user and (pwd or key_path)):
@@ -374,18 +374,24 @@ class SFTPUploader(UploaderBase):
             except Exception:
                 pass
 
-            if policy == "reject":
-                client.set_missing_host_key_policy(paramiko.RejectPolicy())
-            elif policy == "auto_add":
+            if policy == "auto_add":
                 client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
                 self._log(
                     logger,
                     "warning",
                     "SFTP host_key_policy=auto_add: 将自动信任未知主机密钥,存在中间人风险",
                 )
-            else:
-                # 默认 warning: 未知主机继续连接但记录警告(比 AutoAddPolicy 更安全)
+            elif policy == "warning":
+                # warning: 未知主机继续连接但记录警告(比 auto_add 安全,但仍有中间人风险)
                 client.set_missing_host_key_policy(paramiko.WarningPolicy())
+                self._log(
+                    logger,
+                    "warning",
+                    "SFTP host_key_policy=warning: 未知主机仍会继续连接,司法场景建议用 reject",
+                )
+            else:
+                # 默认 reject: 未知主机直接拒绝,最安全
+                client.set_missing_host_key_policy(paramiko.RejectPolicy())
 
             connect_kwargs = {"hostname": host, "port": port, "username": user, "timeout": 30}
             if pwd:
@@ -419,21 +425,36 @@ class LocalUploader(UploaderBase):
 
     必需配置: ``destination_dir`` (绝对路径,自动 mkdir -p)
     可选:     ``mode (copy|move|hardlink)`` 默认 copy
+              ``danger_allow_evidence_move`` 设为 true 才允许 move/hardlink
     """
 
     name = "local"
     display_name = "本地备份 (NAS 挂载点 / 移动硬盘 / 第二个硬盘)"
     required_deps = []  # 仅 stdlib
-    config_schema_hint = "destination_dir, mode (copy|move|hardlink)"
+    config_schema_hint = (
+        "destination_dir, mode (copy|move|hardlink), "
+        "danger_allow_evidence_move (true/false)"
+    )
 
     def upload(self, file, logger=None, config=None):
         config = config or {}
         dest_dir = config.get("destination_dir")
         mode = config.get("mode", "copy").lower()
+        danger_allowed = str(config.get("danger_allow_evidence_move", "")).lower() in (
+            "1",
+            "true",
+            "yes",
+        )
 
         if not dest_dir:
             return self._return_failure(
                 "local 配置缺失 destination_dir (目标绝对路径)"
+            )
+
+        if mode in ("move", "hardlink") and not danger_allowed:
+            return self._return_failure(
+                f"mode={mode} 会移动证据原件或改变证据 inode,司法场景严禁。"
+                "如需继续,请设置 danger_allow_evidence_move=true 并确认风险自负。"
             )
 
         try:

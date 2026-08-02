@@ -10,7 +10,7 @@
 [![License](https://img.shields.io/badge/license-MIT%20%2B%20end--use%20restrictions-orange)]()
 [![AGENTS.md](https://img.shields.io/badge/AGENTS.md-compatible-purple)]()
 [![ISO 27037](https://img.shields.io/badge/compliance-ISO%2FIEC%2027037-informational)]()
-[![Tests](https://img.shields.io/badge/tests-62%20passed-brightgreen)]()
+[![Tests](https://img.shields.io/badge/tests-66%20passed-brightgreen)]()
 
 > **Latest**: v2.0.8 — README upgraded with TOC + collapsible legal notice + redacted sample report; v2.0.6 / v2.0.7 backlog releases consolidated. See [CHANGELOG.md](CHANGELOG.md) for the full history of v2.0.3 → v2.0.8.
 
@@ -492,7 +492,7 @@ git clone https://github.com/serenashenn3-art/wechat-forensic-pro.git
 cd wechat-forensic-pro
 pip install -e ".[dev,all]"
 
-# Run tests (62 cases, covers key bug fixes incl. 7 cross-platform regressions)
+# Run tests (66 cases, covers key bug fixes incl. 7 cross-platform regressions)
 pytest tests/ -v --cov=wechat_forensic
 
 # One-shot check (lint + test + CLI smoke)

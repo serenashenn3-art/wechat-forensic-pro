@@ -23,6 +23,10 @@ class Packer:
             logger.info(f"开始压缩: {src} -> {dst}")
 
         if pwd:
+            if len(pwd) < 12 and logger:
+                logger.warning(
+                    "压缩包密码长度不足 12 位,建议使用随机长密码并通过安全渠道分发"
+                )
             try:
                 import pyzipper  # type: ignore
 

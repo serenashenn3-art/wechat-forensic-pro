@@ -67,29 +67,28 @@ def sign_report(report_path: str, private_key_pem: Optional[bytes] = None) -> di
         try:
             from cryptography.hazmat.primitives import hashes, serialization
             from cryptography.hazmat.primitives.asymmetric import padding
+        except ImportError as e:
+            raise RuntimeError(
+                "指定了 RSA 私钥但 cryptography 库未安装,"
+                "无法完成司法鉴定级签名。请安装: pip install cryptography"
+            ) from e
 
-            private_key = serialization.load_pem_private_key(private_key_pem, password=None)
-            signature = private_key.sign(
-                report_sha256.encode("utf-8"),
-                padding.PSS(mgf=padding.MGF1(hashes.SHA256()), salt_length=padding.PSS.MAX_LENGTH),
-                hashes.SHA256(),
+        private_key = serialization.load_pem_private_key(private_key_pem, password=None)
+        signature = private_key.sign(
+            report_sha256.encode("utf-8"),
+            padding.PSS(mgf=padding.MGF1(hashes.SHA256()), salt_length=padding.PSS.MAX_LENGTH),
+            hashes.SHA256(),
+        )
+        sig_info["signature_algorithm"] = "RSA-PSS-SHA256"
+        sig_info["signature_b64"] = base64.b64encode(signature).decode("ascii")
+        sig_info["public_key_fingerprint"] = hashlib.sha256(
+            private_key.public_key().public_bytes(
+                encoding=serialization.Encoding.PEM,
+                format=serialization.PublicFormat.SubjectPublicKeyInfo,
             )
-            sig_info["signature_algorithm"] = "RSA-PSS-SHA256"
-            sig_info["signature_b64"] = base64.b64encode(signature).decode("ascii")
-            sig_info["public_key_fingerprint"] = hashlib.sha256(
-                private_key.public_key().public_bytes(
-                    encoding=serialization.Encoding.PEM,
-                    format=serialization.PublicFormat.SubjectPublicKeyInfo,
-                )
-            ).hexdigest()
-            sig_info["non_repudiation"] = True
-            sig_info["forensic_note"] = "RSA-PSS 使用私钥签名,公钥可验证,具备不可否认性。"
-        except ImportError:
-            sig_info["error"] = "cryptography 库未安装,HMAC 模式需设置 WECHAT_FORENSIC_HMAC_KEY"
-            sig_info["signature_b64"], sig_info["key_fingerprint_sha256"] = _hmac_sign(report_sha256)
-            sig_info["signature_algorithm"] = "HMAC-SHA256"
-            sig_info["non_repudiation"] = False
-            sig_info["forensic_note"] = "HMAC 为共享密钥模式,仅提供完整性保护,不具备不可否认性。"
+        ).hexdigest()
+        sig_info["non_repudiation"] = True
+        sig_info["forensic_note"] = "RSA-PSS 使用私钥签名,公钥可验证,具备不可否认性。"
     else:
         try:
             sig_info["signature_b64"], sig_info["key_fingerprint_sha256"] = _hmac_sign(report_sha256)
@@ -172,9 +171,10 @@ def chain_of_custody_template() -> dict:
                 "os": "<操作系统版本>",
             },
             "write_blocking": {
-                "used": True,
+                "used": False,
                 "tool": "<硬件写保护桥型号, 如 Tableau / WiebeTech>",
                 "or_software": "<如仅软件方式, 记录 fs_mounted_ro 等>",
+                "note": "本工具不强制写保护;如需声称已使用写保护,请手动设为 true 并填入真实信息",
             },
         },
         "integrity": {

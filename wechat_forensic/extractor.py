@@ -100,15 +100,21 @@ class Extractor:
         src: Path,
         dst_root: Path = None,
         patterns: List[str] = None,
+        skip_dirs: List[str] = None,
     ) -> List[Dict]:
-        """复制 src 下文件到 dst_root,逐文件计算 SHA-256"""
+        """复制 src 下文件到 dst_root,逐文件计算 SHA-256
+
+        skip_dirs: 跳过的目录名列表。默认跳过缓存/临时目录;
+                   日志目录默认保留,因为可能包含关键证据。
+        """
         dst = dst_root if dst_root is not None else (self.out / src.name)
         copied: List[Dict] = []
         if not src.exists():
             self.log.warning(f"源路径不存在: {src}")
             return copied
+        skip = set(skip_dirs if skip_dirs is not None else ["Cache", "tmp", "temp"])
         for root, dirs, files in os.walk(src):
-            dirs[:] = [d for d in dirs if d not in ["Cache", "tmp", "temp", "log", "Logs"]]
+            dirs[:] = [d for d in dirs if d not in skip]
             for f in files:
                 s = Path(root) / f
                 if patterns and not any(s.match(p) for p in patterns):

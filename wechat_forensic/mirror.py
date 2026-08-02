@@ -6,6 +6,7 @@ import hashlib
 import json
 import os
 import platform
+import re
 import shutil
 import subprocess
 from pathlib import Path
@@ -39,6 +40,56 @@ class MirrorGenerator:
         if sysname == "Windows":
             return path.startswith("\\\\.\\") or path.startswith("\\\\?\\")
         return path.startswith("/dev/")
+
+    @staticmethod
+    def _validate_safe_path(path: str, allow_devices: bool = False) -> bool:
+        """通用路径安全校验: 拒绝空值、控制字符和常见 shell 元字符。
+
+        allow_devices=True 时额外允许 /dev/ 或 \\.\ 设备路径。
+        """
+        if not path or not isinstance(path, str):
+            return False
+        dangerous = set("\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f"
+                        "\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f")
+        if any(c in dangerous for c in path):
+            return False
+        if ";" in path or "|" in path or "&" in path or "`" in path or "$" in path:
+            return False
+        if allow_devices:
+            sysname = platform.system()
+            if sysname == "Windows":
+                if path.startswith("\\\\.\\") or path.startswith("\\\\?\\"):
+                    return True
+            elif path.startswith("/dev/"):
+                return True
+        # 禁止相对路径中的 .. 导致的路径遍历
+        norm = os.path.normpath(path)
+        if ".." in norm.split(os.sep):
+            return False
+        return True
+
+    @staticmethod
+    def _is_critical_system_path(path: str) -> bool:
+        """判断路径是否指向关键系统目录,写入可能破坏系统。"""
+        if not path:
+            return False
+        resolved = os.path.normpath(os.path.abspath(os.path.expanduser(path)))
+        sysname = platform.system()
+        critical = []
+        if sysname == "Windows":
+            windir = os.environ.get("SystemRoot", "C:\\Windows")
+            critical = [
+                windir,
+                os.path.join(windir, "System32"),
+                "C:\\Program Files",
+                "C:\\Program Files (x86)",
+            ]
+        else:
+            critical = ["/etc", "/bin", "/sbin", "/usr", "/lib", "/lib64", "/sys", "/proc"]
+        for c in critical:
+            if resolved == c or resolved.startswith(c + os.sep):
+                return True
+        return False
 
     def mirror_disk_dd(self, source_disk: str, output_path: str) -> Dict:
         """使用 dd 命令生成位对位镜像(Linux/Mac 推荐)"""
@@ -113,6 +164,19 @@ class MirrorGenerator:
 
     def mirror_partition_python(self, source_path: str, output_path: str) -> Dict:
         """纯 Python 逐块复制(适用分区/文件)"""
+        if not self._validate_safe_path(source_path, allow_devices=True):
+            err = f"源路径不合法: {source_path}"
+            self.log.error(err)
+            return {"success": False, "error": err}
+        if not self._validate_safe_path(output_path, allow_devices=False):
+            err = f"输出路径不合法: {output_path}"
+            self.log.error(err)
+            return {"success": False, "error": err}
+        if self._is_critical_system_path(output_path):
+            err = f"拒绝写入关键系统目录: {output_path}"
+            self.log.error(err)
+            return {"success": False, "error": err}
+
         self.log.info(f"开始 Python 逐块镜像: {source_path} -> {output_path}")
         start_time = datetime.datetime.now()
 

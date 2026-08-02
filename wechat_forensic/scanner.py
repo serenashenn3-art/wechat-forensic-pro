@@ -1,7 +1,9 @@
 """设备与存储介质扫描"""
 
+import csv
 import os
 import platform
+import re
 import subprocess
 from pathlib import Path
 from typing import List
@@ -69,23 +71,25 @@ class Scanner:
                 timeout=30,
             )
             if r.returncode == 0 and r.stdout.strip():
-                for line in r.stdout.strip().split("\n")[1:]:
-                    parts = [p.strip().strip('"') for p in line.split(",")]
-                    if len(parts) >= 4 and parts[0]:
-                        size = int(parts[1]) if parts[1].isdigit() else 0
-                        free = int(parts[2]) if parts[2].isdigit() else 0
-                        drives.append(
-                            {
-                                "device": parts[0],
-                                "mount": parts[0],
-                                "fstype": parts[3] if parts[3] else "-",
-                                "label": parts[4] if len(parts) > 4 else "-",
-                                "free": human_bytes(free),
-                                "used": human_bytes(size - free),
-                                "total": human_bytes(size),
-                                "free_bytes": free,
-                            }
-                        )
+                reader = csv.DictReader(r.stdout.strip().split("\n"))
+                for row in reader:
+                    device = row.get("DeviceID", "").strip().strip('"')
+                    if not device:
+                        continue
+                    size = int(row["Size"]) if row.get("Size", "").strip().isdigit() else 0
+                    free = int(row["FreeSpace"]) if row.get("FreeSpace", "").strip().isdigit() else 0
+                    drives.append(
+                        {
+                            "device": device,
+                            "mount": device,
+                            "fstype": row.get("FileSystem", "").strip().strip('"') or "-",
+                            "label": row.get("VolumeName", "").strip().strip('"') or "-",
+                            "free": human_bytes(free),
+                            "used": human_bytes(size - free),
+                            "total": human_bytes(size),
+                            "free_bytes": free,
+                        }
+                    )
                 return drives
         except FileNotFoundError:
             self.log.warning("未找到 powershell,尝试 wmic")
@@ -216,8 +220,8 @@ class Scanner:
                 line = line.strip()
                 if line.startswith("/dev/disk") and ":" in line:
                     path = line.split()[0]
-                    # 过滤分区 disk0s1, 只保留整盘 disk0
-                    if "s" in path[len("/dev/disk") :]:
+                    # 过滤分区 disk0s1/disk0s2, 只保留整盘 disk0
+                    if not re.fullmatch(r"/dev/disk\d+", path):
                         continue
                     try:
                         r2 = subprocess.run(
@@ -273,8 +277,13 @@ class Scanner:
             path = Path(os.path.expandvars(os.path.expanduser(bp)))
             if path.exists():
                 for item in path.iterdir():
-                    if item.is_dir() and len(item.name) == 40:
-                        backups.append(str(item))
+                    # UDID 为 40 位(旧设备)或 64 位(新设备)十六进制字符串
+                    if item.is_dir() and len(item.name) in (40, 64):
+                        try:
+                            int(item.name, 16)
+                            backups.append(str(item))
+                        except ValueError:
+                            continue
         return backups
 
     def android_adb(self) -> List[str]:

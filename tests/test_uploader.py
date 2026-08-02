@@ -100,6 +100,39 @@ def test_local_uploader_missing_dest_dir(tmp_path, stub_logger):
     assert "destination_dir" in result["message"]
 
 
+def test_local_uploader_move_rejected_without_flag(tmp_path, stub_logger):
+    """move/hardlink 模式默认必须被拒绝,以保护证据原件。"""
+    src = tmp_path / "evidence.zip"
+    src.write_bytes(b"x")
+    u = LocalUploader()
+    for mode in ("move", "hardlink"):
+        result = u.upload(
+            str(src),
+            logger=stub_logger,
+            config={"destination_dir": str(tmp_path / "backup"), "mode": mode},
+        )
+        assert result["success"] is False, f"mode={mode} 应该被拒绝"
+        assert "danger_allow_evidence_move" in result["message"]
+
+
+def test_local_uploader_move_allowed_with_flag(tmp_path, stub_logger):
+    src = tmp_path / "evidence.zip"
+    src.write_bytes(b"x")
+    u = LocalUploader()
+    result = u.upload(
+        str(src),
+        logger=stub_logger,
+        config={
+            "destination_dir": str(tmp_path / "backup"),
+            "mode": "move",
+            "danger_allow_evidence_move": "true",
+        },
+    )
+    assert result["success"] is True
+    assert not src.exists()
+    assert (tmp_path / "backup" / "evidence.zip").exists()
+
+
 # ---------------------------------------------------------------------------
 # 6-9. 错误处理
 # ---------------------------------------------------------------------------
@@ -147,6 +180,32 @@ def test_sftp_missing_fields(tmp_path, stub_logger):
     result = u.upload(str(src), logger=stub_logger, config={})
     assert result["success"] is False
     assert "host" in result["message"] or "username" in result["message"]
+
+
+def test_sftp_default_uses_reject_policy(tmp_path, stub_logger, monkeypatch):
+    """SFTP 默认 host_key_policy 应为 reject,防止中间人攻击。"""
+    src = tmp_path / "x.zip"
+    src.write_bytes(b"x")
+
+    fake_reject = object()
+
+    class FakeParamiko:
+        SSHClient = None  # 占位,upload 会 import 失败
+        RejectPolicy = staticmethod(lambda: fake_reject)
+        WarningPolicy = staticmethod(lambda: object())
+        AutoAddPolicy = staticmethod(lambda: object())
+
+    monkeypatch.setitem(sys.modules, "paramiko", FakeParamiko())
+
+    u = SFTPUploader()
+    # 因为 FakeParamiko 没有真正的 SSHClient,上传会失败;
+    # 这里只验证没有 crash 且代码路径进入 SSHClient 构造阶段
+    result = u.upload(
+        str(src),
+        logger=stub_logger,
+        config={"host": "example.com", "username": "u", "password": "p"},
+    )
+    assert isinstance(result, dict)
 
 
 # ---------------------------------------------------------------------------

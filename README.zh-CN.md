@@ -209,6 +209,8 @@ wechat-forensic --mode quick --source /data/wx --no-interactive --output /tmp/ou
 # 退出码 0 = 成功, 1 = 未找到数据
 ```
 
+> **安全提示**: 云上传配置(SFTP/阿里云/百度网盘等)应通过环境变量或密钥管理服务提供,**切勿**将 `password`、`secret_key`、`private_key_path` 等敏感信息直接写入配置文件并提交到版本库。司法场景建议使用 SFTP `host_key_policy=reject` 并预先把主机密钥加入 `known_hosts`。
+
 ### Python API
 ```python
 from wechat_forensic.hashing import Hasher
@@ -262,13 +264,13 @@ wechat_forensic_output/
 └── wechat_forensic_output_*.zip    # 压缩包 (带 SHA-256)
 ```
 
-### JSON 报告结构 (v2.0.6 schema)
+### JSON 报告结构 (v2.0.8 schema)
 
 ```jsonc
 {
   "report_id": "WFE-20260801154024",
-  "report_version": "2.0.6",
-  "tool": { "name": "WeChat Forensic Extractor Pro", "version": "2.0.6" },
+  "report_version": "2.0.8",
+  "tool": { "name": "WeChat Forensic Extractor Pro", "version": "2.0.8" },
   "generated_at_utc": "2026-08-01T07:40:24.123Z",
   "environment": {
     "operator": "forensic-officer-01",
@@ -278,7 +280,7 @@ wechat_forensic_output/
   },
   "compliance": {
     "frameworks": ["ISO/IEC 27037:2012", "RFC 3227", "NIST SP 800-86"],
-    "principle": "原始证据不可修改,所有操作在副本/镜像上进行",
+    "principle": "在理想条件下,原始证据应保持只读,所有分析应在副本/镜像上进行;本工具不强制写保护,司法场景应配合硬件写保护桥使用",
     "hash_algorithm": "SHA-256 (4MB chunk)"
   },
   "chain_of_custody": {
