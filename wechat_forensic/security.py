@@ -56,7 +56,7 @@ def sign_report(report_path: str, private_key_pem: Optional[bytes] = None) -> di
             "user": os.environ.get("USER") or os.environ.get("USERNAME"),
         },
         "compliance": {
-            "iso_27037": "原始证据不可修改;所有操作记录在案",
+            "iso_27037": "原始证据应保持只读;所有操作记录在案;司法场景应配合硬件写保护桥",
             "rfc_3227": "Use copies, avoid contamination, record everything",
             "nist_sp_800_86": "使用 SHA-256 校验完整性",
         },

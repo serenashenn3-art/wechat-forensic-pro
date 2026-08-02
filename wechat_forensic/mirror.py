@@ -101,8 +101,14 @@ class MirrorGenerator:
             self.log.error(err)
             return {"success": False, "error": err}
 
-        if not output_path or not isinstance(output_path, str):
-            return {"success": False, "error": "输出路径不能为空"}
+        if not self._validate_safe_path(output_path, allow_devices=False):
+            err = f"输出路径不合法: {output_path}"
+            self.log.error(err)
+            return {"success": False, "error": err}
+        if self._is_critical_system_path(output_path):
+            err = f"拒绝写入关键系统目录: {output_path}"
+            self.log.error(err)
+            return {"success": False, "error": err}
 
         if not is_admin():
             self.log.warning("生成磁盘镜像需要管理员/root 权限")
@@ -212,14 +218,35 @@ class MirrorGenerator:
             self.log.error(f"镜像异常: {e}")
             return {"success": False, "error": str(e)}
 
-    def mirror_directory_forensic(self, source_dir: str, output_dir: str) -> Dict:
-        """取证级目录镜像:保留元数据 + 哈希清单"""
+    def mirror_directory_forensic(
+        self, source_dir: str, output_dir: str, skip_dirs: List[str] = None
+    ) -> Dict:
+        """取证级目录镜像:保留元数据 + 哈希清单
+
+        skip_dirs: 跳过的目录名列表。默认跳过缓存/临时目录;
+                   日志目录默认保留,因为可能包含关键证据。
+        """
+        if not self._validate_safe_path(source_dir, allow_devices=False):
+            err = f"源目录不合法: {source_dir}"
+            self.log.error(err)
+            return {"success": False, "error": err}
+        if not self._validate_safe_path(output_dir, allow_devices=False):
+            err = f"输出目录不合法: {output_dir}"
+            self.log.error(err)
+            return {"success": False, "error": err}
+        if self._is_critical_system_path(output_dir):
+            err = f"拒绝写入关键系统目录: {output_dir}"
+            self.log.error(err)
+            return {"success": False, "error": err}
+
         self.log.info(f"开始取证级目录镜像: {source_dir}")
         start_time = datetime.datetime.now()
 
         src = Path(source_dir)
         dst = Path(output_dir)
         dst.mkdir(parents=True, exist_ok=True)
+
+        skip = set(skip_dirs if skip_dirs is not None else ["Cache", "tmp", "temp"])
 
         manifest = {
             "type": "forensic_directory_mirror",
@@ -229,12 +256,13 @@ class MirrorGenerator:
             "operator": getpass.getuser(),
             "hostname": platform.node(),
             "platform": platform.platform(),
+            "skipped_directories": sorted(skip),
             "files": [],
         }
 
         total_files = 0
         for root, dirs, files in os.walk(src):
-            dirs[:] = [d for d in dirs if d not in ["Cache", "tmp", "temp", "log", "Logs"]]
+            dirs[:] = [d for d in dirs if d not in skip]
             rel_root = Path(root).relative_to(src)
             dst_root = dst / rel_root
             dst_root.mkdir(parents=True, exist_ok=True)

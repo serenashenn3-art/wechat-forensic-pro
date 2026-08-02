@@ -140,6 +140,14 @@ class BaiduUploader(UploaderBase):
     def upload(self, file, logger=None, config=None):
         config = config or {}
         remote_dir = config.get("remote_dir", "/wechat_forensic")
+        # 简单校验 remote_dir,拒绝危险字符和路径遍历
+        if not isinstance(remote_dir, str):
+            return self._return_failure("remote_dir 必须是字符串")
+        if any(c in remote_dir for c in ";|&`$\x00"):
+            return self._return_failure("remote_dir 包含非法字符")
+        if ".." in remote_dir.split("/"):
+            return self._return_failure("remote_dir 不能包含路径遍历 '..'")
+
         self._log(logger, "info", f"上传百度云 (bypy) -> {remote_dir}/")
         try:
             r = subprocess.run(
