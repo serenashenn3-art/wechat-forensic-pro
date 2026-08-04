@@ -67,7 +67,37 @@ class Locator:
                         "config": str(item / "config") if (item / "config").exists() else None,
                     }
                 )
+            # macOS 原生微信沙盒结构: 2.0b4.0.9/Avatar/KeyValue/MMappedKV/...
+            elif self._is_macos_wechat_version_dir(item):
+                found.append(
+                    {
+                        "wxid": f"macos_{item.name}",
+                        "path": str(item),
+                        "msg": None,
+                        "filestorage": str(item),
+                        "config": None,
+                        "note": "macOS WeChat sandbox version directory",
+                    }
+                )
         return found
+
+    @staticmethod
+    def _is_macos_wechat_version_dir(item: Path) -> bool:
+        """判断是否为 macOS 原生微信沙盒中的版本目录
+
+        特征: 目录名类似 2.0b4.0.9, 且包含 macOS 微信特有子目录
+        """
+        name = item.name
+        # 版本号格式: x.xbx.x 或 x.x.x.x
+        if not (name[0].isdigit() and ("." in name)):
+            return False
+        # macOS 微信沙盒目录典型子目录
+        macos_markers = {"Avatar", "KeyValue", "MMappedKV", "MMResourceMgr", "CGI", "nsid"}
+        try:
+            children = {c.name for c in item.iterdir() if c.is_dir()}
+        except PermissionError:
+            return False
+        return bool(children & macos_markers)
 
     def find_mobile(self) -> List[Dict]:
         from pathlib import Path

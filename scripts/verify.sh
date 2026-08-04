@@ -14,9 +14,9 @@ echo "==> 2/4 pytest"
 pytest tests/ -v --cov=wechat_forensic --cov-report=term-missing
 
 echo "==> 3/4 CLI --version"
-python -m wechat_forensic.cli --version
+python3 -m wechat_forensic.cli --version
 
 echo "==> 4/4 CLI --help"
-python -m wechat_forensic.cli --help | head -5
+python3 -m wechat_forensic.cli --help | head -5
 
 echo "==> ALL OK"
