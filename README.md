@@ -239,8 +239,8 @@ wechat_forensic_output/
 ```jsonc
 {
   "report_id": "WFE-20260801154024",
-  "report_version": "2.0.6",
-  "tool": { "name": "WeChat Forensic Extractor Pro", "version": "2.0.6" },
+  "report_version": "2.0.8",
+  "tool": { "name": "WeChat Forensic Extractor Pro", "version": "2.0.8" },
   "generated_at_utc": "2026-08-01T07:40:24.123Z",
   "environment": {
     "operator": "forensic-officer-01",

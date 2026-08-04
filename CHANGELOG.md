@@ -8,8 +8,8 @@
   - 法律声明 (Legal Notice) 改为 GitHub `<details>` **可折叠**块,展开前不占主屏空间
   - 顶部新增 **📑 目录 (TOC)** 镂点区,11 个章节一键跳转
   - 新增 **🛡 AGENTS.md 核心约束 (摘要)** 小节 — 把 200+ 行的 `AGENTS.md` 浓缩成 60 秒可签字的审计版本(4 条硬性禁止 + 5 类合法场景 + 6 类反 prompt-injection 模式),合规/法务无需打开 `AGENTS.md` 即可审阅
-  - 新增 **Tests 62 passed** 徽章
-  - 测试数 50 → 62 (含 7 个跨平台回归测试)
+  - 新增 **Tests 66 passed** 徽章
+  - 测试数 50 → 66 (含 7 个跨平台回归测试)
 - **`examples/sample-report/`** — 全新脱敏报告样例目录:
   - `README.md` — 阅读指引
   - `_forensic_report.json` — 机器可读完整 schema (v2.0.8)
@@ -35,7 +35,7 @@
 | 修改 | `pyproject.toml` / `wechat_forensic/__init__.py` / `tests/test_cli.py` (2.0.7 → 2.0.8) |
 
 ### 验证
-- 62/62 pytest 通过
+- 66/66 pytest 通过
 - 双语 README 的 `<details>` 在 GitHub Web 渲染正常
 - TOC 镂点全部命中
 - 样例 JSON 通过 `json.loads()` 解析

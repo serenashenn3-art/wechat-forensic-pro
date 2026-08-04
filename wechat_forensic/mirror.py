@@ -10,7 +10,7 @@ import re
 import shutil
 import subprocess
 from pathlib import Path
-from typing import Dict
+from typing import Dict, List
 
 from .hashing import Hasher
 from .utils import is_admin
@@ -45,7 +45,7 @@ class MirrorGenerator:
     def _validate_safe_path(path: str, allow_devices: bool = False) -> bool:
         """通用路径安全校验: 拒绝空值、控制字符和常见 shell 元字符。
 
-        allow_devices=True 时额外允许 /dev/ 或 \\.\ 设备路径。
+        allow_devices=True 时额外允许 /dev/ 或 Windows 设备路径 (\\.\\)。 
         """
         if not path or not isinstance(path, str):
             return False

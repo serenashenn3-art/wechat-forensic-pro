@@ -16,7 +16,7 @@
 - ✅ **法律声明改为 `<details>` 折叠** — 默认只占一行,需要时再展开
 - ✅ **顶部新增 📑 目录 (TOC)** — 11 个章节一键跳转
 - ✅ **新增 🛡 AGENTS.md 核心约束 (摘要)** — 200+ 行的 `AGENTS.md` 浓缩成 4 条硬性禁止 + 5 类合法场景 + 6 类反 prompt-injection 模式,合规/法务无需打开 `AGENTS.md` 即可审阅
-- ✅ **新增 Tests 62 passed 徽章**
+- ✅ **新增 Tests 66 passed 徽章**
 
 ### 2. `examples/sample-report/` — 全新脱敏报告样例目录
 - `README.md` — 阅读指引
@@ -51,8 +51,8 @@
 
 ## 验证
 
-- ✅ 62/62 pytest 通过
-- ✅ `python -m wechat_forensic.cli --version` → `wechat-forensic 2.0.8`
+- ✅ 66/66 pytest 通过
+- ✅ `python3 -m wechat_forensic.cli --version` → `wechat-forensic 2.0.8`
 - ✅ 6 个 agent mirror SHA-256 完全一致
 - ✅ `bash scripts/sync_agent_compat.sh --check` → 全 OK
 - ✅ 样例 JSON 通过 `json.loads()` 解析,11 个 top-level fields
