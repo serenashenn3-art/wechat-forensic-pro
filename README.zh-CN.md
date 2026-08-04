@@ -10,7 +10,7 @@
 [![License](https://img.shields.io/badge/license-MIT%20%2B%20%E5%9F%9F%E5%A4%96%E9%99%90%E5%88%B6-orange)]()
 [![AGENTS.md](https://img.shields.io/badge/AGENTS.md-compatible-purple)]()
 [![ISO 27037](https://img.shields.io/badge/compliance-ISO%2FIEC%2027037-informational)]()
-[![Tests](https://img.shields.io/badge/tests-66%20passed-brightgreen)]()
+[![Tests](https://img.shields.io/badge/tests-71%20passed-brightgreen)]()
 
 > **最近更新**: v2.0.8 — README 顶部加 TOC + 法律声明折叠 + 报告样例目录;v2.0.6 / v2.0.7 累积变更合并发布。
 > 历史版本:v2.0.3 (证据链) · v2.0.4 (i18n + AI Skills) · v2.0.5 (可插拔云盘) · v2.0.6 (中文化图 + 法律声明) · v2.0.7 (symlink→mirror 修复) · **v2.0.8 (本次)**。详见 [CHANGELOG.md](CHANGELOG.md)。
@@ -453,7 +453,7 @@ git clone https://github.com/serenashenn3-art/wechat-forensic-pro.git
 cd wechat-forensic-pro
 pip install -e ".[dev,all]"
 
-# 跑测试 (66 用例, 覆盖关键 bug 修复 含 7 个跨平台回归测试)
+# 跑测试 (71 用例, 覆盖关键 bug 修复 含 7 个跨平台回归测试 + macOS 微信沙盒识别)
 pytest tests/ -v --cov=wechat_forensic
 
 # 一次性检查 (lint + test + CLI smoke)

@@ -1,5 +1,21 @@
 # 变更日志
 
+## [Unreleased]
+
+### 修复 (macOS 适配 + CLI 健壮性)
+- **修复 macOS 原生微信无法识别**: `locator.py` 现在能识别沙盒版本目录
+  (如 `2.0b4.0.9/Avatar/KeyValue/MMappedKV/...`), 自动发现微信数据
+- **修复 CLI 报告阶段未捕获 `ReportValidationError`**: 缺少 `--case-id` /
+  `--evidence-id` 时不再打印 Python Traceback, 而是返回退出码 1 并给出友好提示
+- **新增定位器单元测试** `tests/test_locator.py`: 覆盖 Windows 标准结构、
+  macOS 沙盒结构、非法目录过滤, 测试总数 66 → 71
+- **适配 `scripts/verify.sh`**: macOS 默认使用 `python3` 而非 `python`
+
+### 验证
+- 71/71 pytest 通过
+- macOS 上 `wechat-forensic --mode quick --no-interactive` 可自动发现微信数据
+- `bash scripts/verify.sh` 全 OK
+
 ## [2.0.8] - 2026-08-02
 
 ### 改进 (README 可用性 + 报告样例 + AGENTS 可审计)

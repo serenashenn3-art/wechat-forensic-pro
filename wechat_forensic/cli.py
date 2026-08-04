@@ -15,7 +15,7 @@ from .locator import Locator
 from .logger import ForensicLogger
 from .mirror import MirrorGenerator
 from .packer import Packer
-from .report import ReportGenerator
+from .report import ReportGenerator, ReportValidationError
 from .scanner import Scanner
 from .uploader import Uploader, UploaderRegistry, get_config_for, load_config
 
@@ -294,13 +294,19 @@ def main(argv=None) -> int:
     print("\n" + "-" * 70)
     print("[最终] 生成取证报告")
     print("-" * 70)
-    report_path = ReportGenerator.generate(
-        args.output,
-        operations,
-        log,
-        case_id=args.case_id,
-        evidence_id=args.evidence_id,
-    )
+    try:
+        report_path = ReportGenerator.generate(
+            args.output,
+            operations,
+            log,
+            case_id=args.case_id,
+            evidence_id=args.evidence_id,
+        )
+    except ReportValidationError as e:
+        log.error(f"报告生成失败: {e}")
+        print(f"\n[错误] {e}")
+        print("提示: 司法取证场景请提供 --case-id 和 --evidence-id")
+        return 1
 
     # 可选: 数字签名
     if args.sign:
