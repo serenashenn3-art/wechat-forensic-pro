@@ -10,12 +10,12 @@
 [![License](https://img.shields.io/badge/license-MIT%20%2B%20%E5%9F%9F%E5%A4%96%E9%99%90%E5%88%B6-orange)]()
 [![AGENTS.md](https://img.shields.io/badge/AGENTS.md-compatible-purple)]()
 [![ISO 27037](https://img.shields.io/badge/compliance-ISO%2FIEC%2027037-informational)]()
-[![Tests](https://img.shields.io/badge/tests-71%20passed-brightgreen)]()
+[![Tests](https://img.shields.io/badge/tests-93%20passed-brightgreen)]()
 
-> **最近更新**: v2.0.8 — README 顶部加 TOC + 法律声明折叠 + 报告样例目录;v2.0.6 / v2.0.7 累积变更合并发布。
+> **最近更新**: v2.0.8 — 新增 ChatViewer 选择式取证（先解析联系人、勾选特定对象后导出）、A/B 授权依据留痕、老版微信目录与数据库列名兼容；README 顶部加 TOC + 法律声明折叠 + 报告样例目录；v2.0.6 / v2.0.7 累积变更合并发布。
 > 历史版本:v2.0.3 (证据链) · v2.0.4 (i18n + AI Skills) · v2.0.5 (可插拔云盘) · v2.0.6 (中文化图 + 法律声明) · v2.0.7 (symlink→mirror 修复) · **v2.0.8 (本次)**。详见 [CHANGELOG.md](CHANGELOG.md)。
 
-![WeChat Forensic Pro 概览](assets/diagrams/overview.svg)
+![WeChat Forensic Pro 概览](assets/diagrams/overview-v2.0.8.jpg)
 
 ---
 
