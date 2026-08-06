@@ -206,8 +206,73 @@ def test_authorization_recorded_in_manifest(stub_logger, tmp_path):
     out = tmp_path / "out"
 
     with ChatViewer(stub_logger, str(db)) as v:
-        mp, _ = v.export_messages(["wxid_bob"], str(out), authorization="测试授权")
+        mp, _ = v.export_messages(
+            ["wxid_bob"], str(out),
+            authorization="A-个人取证-本人设备",
+            authorization_type="A",
+        )
 
     manifest = json.loads(Path(mp).read_text(encoding="utf-8"))
-    assert manifest["authorization"] == "测试授权"
+    assert manifest["authorization"] == "A-个人取证-本人设备"
+    assert manifest["authorization_type"] == "A"
     assert manifest["selected_wxids"] == ["wxid_bob"]
+
+
+def test_pc_legacy_columns(stub_logger, tmp_path):
+    """PC 老版列名变体: UserName / con_displayname / conRemark"""
+    db = tmp_path / "pc_legacy.db"
+    conn = sqlite3.connect(str(db))
+    conn.executescript(
+        "CREATE TABLE contact (UserName TEXT, con_displayname TEXT, conRemark TEXT);"
+        "INSERT INTO contact VALUES ('wxid_legacy', 'LegacyNick', 'LegacyRemark');"
+    )
+    conn.commit()
+    conn.close()
+
+    with ChatViewer(stub_logger, str(db)) as v:
+        contacts = v.list_contacts()
+        assert len(contacts) == 1
+        assert contacts[0]["wxid"] == "wxid_legacy"
+        assert contacts[0]["nickname"] == "LegacyNick"
+        assert contacts[0]["remark"] == "LegacyRemark"
+
+
+def test_ios_legacy_columns(stub_logger, tmp_path):
+    """iOS 老版列名变体: Friend / m_nsNickName / m_nsRemark"""
+    db = tmp_path / "ios_legacy.db"
+    conn = sqlite3.connect(str(db))
+    conn.executescript(
+        "CREATE TABLE Friend (userName TEXT, m_nsNickName TEXT, m_nsRemark TEXT);"
+        "INSERT INTO Friend VALUES ('wxid_ios', 'iOSNick', 'iOSRemark');"
+    )
+    conn.commit()
+    conn.close()
+
+    with ChatViewer(stub_logger, str(db)) as v:
+        contacts = v.list_contacts()
+        assert len(contacts) == 1
+        assert contacts[0]["wxid"] == "wxid_ios"
+        assert contacts[0]["nickname"] == "iOSNick"
+        assert contacts[0]["remark"] == "iOSRemark"
+
+
+def test_android_legacy_message_columns(stub_logger, tmp_path):
+    """Android 老版消息列名变体: strTalker / IsSend / msgTime / msgContent + weixinhao"""
+    db = tmp_path / "android_legacy_msg.db"
+    conn = sqlite3.connect(str(db))
+    conn.executescript(
+        "CREATE TABLE rcontact (username TEXT, nickname TEXT, remark TEXT, weixinhao TEXT);"
+        "CREATE TABLE message (strTalker TEXT, IsSend INTEGER, msgTime INTEGER, msgContent TEXT);"
+        "INSERT INTO rcontact VALUES ('wxid_leg1', 'LegacyOne', 'LegacyRemark', 'wx_leg_one');"
+        "INSERT INTO message VALUES ('wxid_leg1', 0, 1700000000000, 'msg1');"
+        "INSERT INTO message VALUES ('wxid_leg1', 1, 1700000001000, 'msg2');"
+    )
+    conn.commit()
+    conn.close()
+
+    with ChatViewer(stub_logger, str(db)) as v:
+        contacts = v.list_contacts()
+        assert len(contacts) == 1
+        assert contacts[0]["alias"] == "wx_leg_one"
+        mp, files = v.export_messages(["wxid_leg1"], str(tmp_path / "out"))
+        assert files[0]["message_count"] == 2

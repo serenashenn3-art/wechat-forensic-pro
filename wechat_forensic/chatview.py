@@ -36,6 +36,23 @@ SCHEMA_PC = "pc"             # MicroMsg.db: contact (消息在 msg_*.db, 不在�
 SCHEMA_IOS = "ios"           # MM.sqlite: Friend
 
 
+# 老版/不同导出工具产生的列名变体。键为标准化后的逻辑名。
+CONTACT_COLUMNS = {
+    "wxid": ["username", "userName", "UserName", "alias", "Alias"],
+    "nickname": ["nickname", "nickName", "NickName", "m_nsNickName", "dbContactNickName", "con_displayname", "conNickname"],
+    "remark": ["remark", "Remark", "m_nsRemark", "dbContactRemark", "conRemark", "con_remark"],
+    "alias": ["alias", "Alias", "m_nsAliasName", "con_username", "weixinhao", "wxid"],
+}
+
+MESSAGE_COLUMNS = {
+    "talker": ["talker", "strTalker", "username", "UserName"],
+    "isSend": ["isSend", "is_send", "IzSend", "type"],
+    "time": ["createTime", "create_time", "msgTime", "msgtime", "MsgTime", "CreateTime"],
+    "content": ["content", "msgContent", "msg_content", "message", "msg"],
+    "type": ["type", "msgType", "msg_type", "Type"],
+}
+
+
 class ChatViewer:
     """读取已解密微信 db, 列出联系人, 按勾选导出消息。
 
@@ -94,52 +111,71 @@ class ChatViewer:
             f" 支持: Android(rcontact+message) / PC(contact) / iOS(Friend)"
         )
 
+    def _columns(self, table: str) -> set:
+        """获取指定表的实际列名集合"""
+        cur = self._conn.execute(f"PRAGMA table_info({table})")
+        return {row["name"] for row in cur.fetchall()}
+
+    @staticmethod
+    def _pick_col(cols: set, *candidates) -> Optional[str]:
+        """从候选列名中挑选第一个存在的列名"""
+        for c in candidates:
+            if c in cols:
+                return c
+        return None
+
+    def _resolve_contact_cols(self, table: str) -> Dict[str, Optional[str]]:
+        """根据实际表列名, 解析出 wxid/nickname/remark/alias 对应的真实列"""
+        cols = self._columns(table)
+        return {
+            key: self._pick_col(cols, *candidates)
+            for key, candidates in CONTACT_COLUMNS.items()
+        }
+
     def list_contacts(self) -> List[Dict]:
         """查询联系人列表, 返回 [{wxid, nickname, remark, alias}]
 
         过滤掉公众号 (gh_* 开头) 和空 username。优先按"有备注"排序,
         便于取证人员快速定位已备注的对象。
+
+        对老版微信/不同导出工具产生的列名变体做动态适配。
         """
         rows: List[Dict] = []
-        if self.schema == SCHEMA_ANDROID:
-            cur = self._conn.execute(
-                "SELECT username, nickname, remark, alias FROM rcontact "
-                "WHERE username NOT LIKE 'gh_%' AND username != '' "
-                "ORDER BY CASE WHEN remark != '' THEN 0 ELSE 1 END, nickname"
-            )
-            for r in cur.fetchall():
-                rows.append({
-                    "wxid": r["username"],
-                    "nickname": r["nickname"] or "",
-                    "remark": r["remark"] or "",
-                    "alias": r["alias"] or "",
-                })
-        elif self.schema == SCHEMA_PC:
-            cur = self._conn.execute(
-                "SELECT username, nickname, remark FROM contact "
-                "WHERE username NOT LIKE 'gh_%' AND username != '' "
-                "ORDER BY CASE WHEN remark != '' THEN 0 ELSE 1 END, nickname"
-            )
-            for r in cur.fetchall():
-                rows.append({
-                    "wxid": r["username"],
-                    "nickname": r["nickname"] or "",
-                    "remark": r["remark"] or "",
-                    "alias": "",
-                })
-        else:  # SCHEMA_IOS
-            cur = self._conn.execute(
-                "SELECT userName, dbContactNickName, dbContactRemark FROM Friend "
-                "WHERE userName NOT LIKE 'gh_%' AND userName IS NOT NULL "
-                "ORDER BY CASE WHEN dbContactRemark IS NOT NULL THEN 0 ELSE 1 END"
-            )
-            for r in cur.fetchall():
-                rows.append({
-                    "wxid": r["userName"],
-                    "nickname": r["dbContactNickName"] or "",
-                    "remark": r["dbContactRemark"] or "",
-                    "alias": "",
-                })
+        table_map = {
+            SCHEMA_ANDROID: "rcontact",
+            SCHEMA_PC: "contact",
+            SCHEMA_IOS: "Friend",
+        }
+        table = table_map.get(self.schema)
+        if not table:
+            return rows
+
+        mapping = self._resolve_contact_cols(table)
+        wxid_col = mapping.get("wxid") or "username"
+        nick_col = mapping.get("nickname") or "nickname"
+        remark_col = mapping.get("remark") or "remark"
+        alias_col = mapping.get("alias")
+
+        # 构造 SELECT / WHERE / ORDER BY, 只使用实际存在的列
+        select_cols = [wxid_col, nick_col, remark_col]
+        if alias_col:
+            select_cols.append(alias_col)
+        order_col = remark_col if mapping.get("remark") else nick_col
+
+        where_parts = [f"{wxid_col} NOT LIKE 'gh_%'", f"{wxid_col} != ''"]
+        sql = (
+            f"SELECT {', '.join(select_cols)} FROM {table} "
+            f"WHERE {' AND '.join(where_parts)} "
+            f"ORDER BY CASE WHEN {order_col} != '' THEN 0 ELSE 1 END, {nick_col}"
+        )
+        cur = self._conn.execute(sql)
+        for r in cur.fetchall():
+            rows.append({
+                "wxid": r[wxid_col] or "",
+                "nickname": r[nick_col] or "",
+                "remark": r[remark_col] or "",
+                "alias": r[alias_col] if alias_col else "",
+            })
         self.log.info(f"查询到 {len(rows)} 个联系人 (已过滤公众号)")
         return rows
 
@@ -175,10 +211,11 @@ class ChatViewer:
         wxids: List[str],
         out_dir: str,
         authorization: str = "",
+        authorization_type: str = "",
     ) -> Tuple[str, List[Dict]]:
         """按勾选的 wxid 列表导出消息, 每个联系人一个文件 + SHA-256
 
-        返回 (manifest_path, files_report)。manifest 含授权依据留痕。
+        返回 (manifest_path, files_report)。manifest 含授权依据与类型留痕。
         """
         out = Path(out_dir)
         out.mkdir(parents=True, exist_ok=True)
@@ -204,6 +241,7 @@ class ChatViewer:
             "time": datetime.datetime.now().isoformat(),
             "source_db": str(self.db_path),
             "schema": self.schema,
+            "authorization_type": authorization_type or "(未填写)",
             "authorization": authorization or "(未填写)",
             "selected_wxids": wxids,
             "files": files_report,
@@ -221,24 +259,41 @@ class ChatViewer:
         Android: message 表 talker=wxid, createTime 为毫秒。
         PC/iOS: 消息不在联系人 db 内 (PC 在 msg_*.db, iOS 在 Chat_* 表),
         当前 db 仅含联系人, 此处返回空并给出 warning。
+
+        对老版/不同导出工具的列名变体做动态适配。
         """
-        if self.schema == SCHEMA_ANDROID:
-            cur = self._conn.execute(
-                "SELECT isSend, createTime, content, type FROM message "
-                "WHERE talker = ? ORDER BY createTime ASC",
-                (wxid,),
+        if self.schema != SCHEMA_ANDROID:
+            self.log.warning(
+                f"schema={self.schema} 的消息不在当前 db 内"
+                f" (PC 在 msg_*.db / iOS 在 Chat_* 表), 跳过 {wxid} 的消息导出"
             )
-            return [{
-                "isSend": r["isSend"],
-                "time": r["createTime"],
-                "content": r["content"] or "",
-                "type": r["type"],
-            } for r in cur.fetchall()]
-        self.log.warning(
-            f"schema={self.schema} 的消息不在当前 db 内"
-            f" (PC 在 msg_*.db / iOS 在 Chat_* 表), 跳过 {wxid} 的消息导出"
+            return []
+
+        tables = {row[0] for row in self._conn.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+        if "message" not in tables:
+            return []
+
+        cols = self._columns("message")
+        talker_col = self._pick_col(cols, *MESSAGE_COLUMNS["talker"]) or "talker"
+        is_send_col = self._pick_col(cols, *MESSAGE_COLUMNS["isSend"]) or "isSend"
+        time_col = self._pick_col(cols, *MESSAGE_COLUMNS["time"]) or "createTime"
+        content_col = self._pick_col(cols, *MESSAGE_COLUMNS["content"]) or "content"
+        type_col = self._pick_col(cols, *MESSAGE_COLUMNS["type"])
+
+        select_cols = [is_send_col, time_col, content_col]
+        if type_col:
+            select_cols.append(type_col)
+        sql = (
+            f"SELECT {', '.join(select_cols)} "
+            f"FROM message WHERE {talker_col} = ? ORDER BY {time_col} ASC"
         )
-        return []
+        cur = self._conn.execute(sql, (wxid,))
+        return [{
+            "isSend": r[is_send_col],
+            "time": r[time_col],
+            "content": r[content_col] or "",
+            "type": r[type_col] if type_col else None,
+        } for r in cur.fetchall()]
 
     @staticmethod
     def _format_time(ts) -> str:

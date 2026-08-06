@@ -30,8 +30,13 @@ class Locator:
                 "WeChat Files",
                 "Documents/WeChat Files",
                 "Tencent/WeChat Files",
+                "Tencent Files",
+                "WXWork",
+                "Documents/WXWork",
                 "Users/*/Documents/WeChat Files",
                 "Users/*/WeChat Files",
+                "Users/*/Documents/Tencent Files",
+                "Users/*/Tencent Files",
             ]:
                 paths.append(os.path.join(m, sub))
 
@@ -57,7 +62,8 @@ class Locator:
         for item in p.iterdir():
             if not item.is_dir():
                 continue
-            if item.name.startswith("wxid_") or (item / "Msg").exists():
+            # 新版 PC 账号目录以 wxid_ 开头; 老版可能是 QQ号/手机号/自定义名
+            if item.name.startswith("wxid_") or self._looks_like_pc_account_dir(item):
                 found.append(
                     {
                         "wxid": item.name,
@@ -80,6 +86,25 @@ class Locator:
                     }
                 )
         return found
+
+    @staticmethod
+    def _looks_like_pc_account_dir(item: Path) -> bool:
+        """识别非 wxid_ 开头的老版 PC 微信账号目录
+
+        老版微信目录名可能是 QQ 号、手机号、自定义名, 但内部会有
+        Msg/FileStorage/CustomFace/config 等子目录或 .db 文件。
+        """
+        if item.name.startswith("wxid_"):
+            return True
+        try:
+            sub_names = {c.name for c in item.iterdir() if c.exists()}
+        except (PermissionError, OSError):
+            return False
+        if {"Msg", "FileStorage", "CustomFace", "config"} & sub_names:
+            return True
+        if any(n.endswith(".db") for n in sub_names):
+            return True
+        return False
 
     @staticmethod
     def _is_macos_wechat_version_dir(item: Path) -> bool:
