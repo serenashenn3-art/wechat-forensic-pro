@@ -2,7 +2,7 @@
   "$schema": "https://openclaw.dev/schemas/skill-manifest.v1.json",
   "id": "wechat-forensic-pro",
   "name": "WeChat Forensic Pro",
-  "version": "2.0.3",
+  "version": "2.0.8",
   "description": "Cross-platform WeChat chat-record forensic extraction toolchain with SHA-256 verification, Chain of Custody (ISO/IEC 27037), and digital signatures. Legal use only.",
   "author": "WeChat Forensic Pro Contributors",
   "license": "MIT (code) + end-use restrictions (behavior)",

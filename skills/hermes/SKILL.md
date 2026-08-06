@@ -43,7 +43,7 @@ response = client.chat(
 ```yaml
 ---
 skill: wechat-forensic-pro
-version: 2.0.3
+version: 2.0.8
 platform: hermes
 legal_red_line: strict
 forensic_only: true

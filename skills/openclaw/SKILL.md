@@ -26,7 +26,7 @@
   "skills": [
     {
       "id": "wechat-forensic-pro",
-      "version": "2.0.3",
+      "version": "2.0.8",
       "path": "skills/openclaw/SKILL.md",
       "manifest": "skills/openclaw/manifest.json",
       "legal_red_line": "strict",
