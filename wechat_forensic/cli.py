@@ -6,8 +6,10 @@ import getpass
 import platform
 import sys
 from pathlib import Path
+from typing import Tuple
 
 from . import __version__
+from .chatview import ChatViewer, EncryptedDatabaseError, UnsupportedSchemaError
 from .config import Config
 from .extractor import Extractor
 from .hashing import Hasher
@@ -69,6 +71,25 @@ def build_parser() -> argparse.ArgumentParser:
         help="对最终报告做数字签名 (生成 _signature.json, 密钥来自 WECHAT_FORENSIC_HMAC_KEY)",
     )
     parser.add_argument(
+        "--chatview",
+        help=(
+            "已解密微信 db 路径 (明文 sqlite)。启用此模式可列出联系人"
+            " (昵称/备注) 并按勾选导出消息。本工具不解密 db,"
+            " 请先用合规鉴定工具解密为明文 sqlite。"
+        ),
+    )
+    parser.add_argument(
+        "--authorization",
+        help="授权依据 (chatview 模式必填, 写入 manifest 留痕)",
+    )
+    parser.add_argument(
+        "--select",
+        help=(
+            "非交互模式: 指定联系人。支持编号 '1,3,5-8' 或 wxid"
+            " 'wxid_a,wxid_b'。留空则交互式勾选 (配合 --no-interactive 跳过)。"
+        ),
+    )
+    parser.add_argument(
         "--version", action="version", version=f"wechat-forensic {__version__}"
     )
     return parser
@@ -76,6 +97,10 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main(argv=None) -> int:
     args = build_parser().parse_args(argv)
+
+    # 单独处理 --chatview: 选择性消息导出模式 (独立于全量提取流程)
+    if args.chatview:
+        return _run_chatview(args)
 
     # 单独处理 --upload-list: 打印后即退出
     if args.upload_list:
@@ -331,6 +356,148 @@ def main(argv=None) -> int:
     print("     司法鉴定机构出具正式鉴定报告。")
     print("=" * 70)
     return 0
+
+
+def _resolve_authorization(args) -> Tuple[str, str]:
+    """解析 A/B 授权类型与授权依据字符串
+
+    返回 (authorization_type, authorization_text)。
+    - A: 个人设备 / 本人数据
+    - B: 企业合规 / 司法鉴定 / 警方 / 学术研究等需额外授权依据
+    """
+    if args.authorization:
+        s = args.authorization.strip()
+        if s.startswith("A"):
+            return "A", s
+        if s.startswith("B"):
+            return "B", s
+        # 用户只写了依据, 默认按 B 处理(需明确授权依据的场景)
+        return "B", s
+
+    if args.no_interactive:
+        return "", ""
+
+    # 以下 input 仅在非 --no-interactive 模式下执行,
+    # 上方已处理非交互缺失授权的情况。
+    if not args.no_interactive:
+        print("\n请选择授权依据类型 (操作记录将写入 manifest 留痕):")
+        print("  A. 个人取证 — 本人设备 / 本人数据")
+        print("  B. 其他合法场景 — 企业合规 / 司法鉴定 / 警方 / 学术研究")
+        print("     (需按格式填写具体授权依据)")
+        choice = input("选择 [A/B]: ").strip().upper()
+        if choice.startswith("A"):
+            if args.no_interactive:  # 守卫: 非交互模式不应到达此处
+                return "", ""
+            detail = input("本人设备标识(如 wxid_xxx / 手机号后4位), 可直接回车: ").strip()
+            auth = f"A-个人取证-本人设备/{detail}" if detail else "A-个人取证-本人设备"
+            return "A", auth
+        if choice.startswith("B"):
+            if args.no_interactive:  # 守卫: 非交互模式不应到达此处
+                return "", ""
+            detail = input("授权依据 (例: 企业合规审计-员工书面同意-工号A001): ").strip()
+            if not detail:
+                print("[错误] B 类场景必须提供具体授权依据。")
+                return "", ""
+            return "B", f"B-{detail}"
+        print("[错误] 请选择 A 或 B。")
+    return "", ""
+
+
+def _resolve_selection(args, contacts) -> list:
+    """从 --select 或交互式 input 解析选中的 0-based 索引"""
+    if args.select:
+        spec = args.select.strip()
+        cleaned = spec.replace(",", "").replace("-", "").replace(" ", "")
+        if cleaned.isdigit() and cleaned:
+            # 编号语法: 1,3,5-8
+            return ChatViewer.parse_selection(spec, len(contacts))
+        # wxid 语法: wxid_a,wxid_b
+        wxid_set = {w.strip() for w in spec.split(",") if w.strip()}
+        return [i for i, c in enumerate(contacts) if c["wxid"] in wxid_set]
+    if not args.no_interactive:
+        print("\n输入要导出的联系人编号 (如 1,3,5-8), 回车跳过:")
+        spec = input("选择> ").strip()
+        if not spec:
+            return []
+        return ChatViewer.parse_selection(spec, len(contacts))
+    return []
+
+
+def _run_chatview(args) -> int:
+    """选择性消息导出模式: 已解密 db -> 列联系人 -> 勾选 -> 导出
+
+    本模式只读取已解密明文 sqlite, 不含任何解密/密钥推导代码。
+    """
+    auth_type, auth_text = _resolve_authorization(args)
+    if not auth_text:
+        print("[错误] chatview 模式必须提供授权依据 (授权依据留痕)")
+        print("  合法场景: A. 个人取证 / B. 企业合规 / 司法鉴定 / 警方 / 学术研究")
+        return 1
+
+    log = ForensicLogger(Config().LOG_FILE)
+
+    print("=" * 70)
+    print(f"  WeChat Forensic Extractor Pro v{__version__} - ChatViewer")
+    print("  选择性消息导出 (仅读取已解密明文 sqlite, 不含解密能力)")
+    print("=" * 70)
+    log.info(f"授权类型: {auth_type}")
+    log.info(f"授权依据: {auth_text}")
+    log.info(f"源 db: {args.chatview}")
+
+    try:
+        with ChatViewer(log, args.chatview) as viewer:
+            contacts = viewer.list_contacts()
+            if not contacts:
+                print("\n未查询到联系人, 退出。")
+                return 0
+
+            print("\n" + "-" * 70)
+            print(f"联系人列表 (共 {len(contacts)} 个, 已过滤公众号)")
+            print("-" * 70)
+            for i, c in enumerate(contacts, 1):
+                label = c["remark"] or c["nickname"] or c["wxid"]
+                extra = []
+                if c["remark"] and c["nickname"]:
+                    extra.append(f"昵称={c['nickname']}")
+                if c["alias"]:
+                    extra.append(f"微信号={c['alias']}")
+                tail = f"  [{', '.join(extra)}]" if extra else ""
+                print(f"  {i:>4}. {label}  (wxid={c['wxid']}){tail}")
+
+            selected_idx = _resolve_selection(args, contacts)
+            if not selected_idx:
+                print("\n未选择任何联系人, 退出。")
+                return 0
+
+            selected_wxids = [contacts[i]["wxid"] for i in selected_idx]
+            print(f"\n已选择 {len(selected_wxids)} 个联系人, 开始导出...")
+            for i in selected_idx:
+                c = contacts[i]
+                label = c["remark"] or c["nickname"] or c["wxid"]
+                print(f"  - {label} ({c['wxid']})")
+
+            out_dir = str(Path(args.output) / "chatview")
+            mp, files = viewer.export_messages(
+                selected_wxids,
+                out_dir,
+                authorization=auth_text,
+                authorization_type=auth_type,
+            )
+
+            print("\n" + "=" * 70)
+            print("  ChatViewer 导出完成")
+            print("=" * 70)
+            print(f"  输出目录: {out_dir}")
+            print(f"  清单:     {mp}")
+            print(f"  文件数:   {len(files)}")
+            total_msgs = sum(f["message_count"] for f in files)
+            print(f"  消息总数: {total_msgs}")
+            print("=" * 70)
+            return 0
+    except (EncryptedDatabaseError, UnsupportedSchemaError, FileNotFoundError) as e:
+        log.error(str(e))
+        print(f"\n[错误] {e}")
+        return 1
 
 
 if __name__ == "__main__":

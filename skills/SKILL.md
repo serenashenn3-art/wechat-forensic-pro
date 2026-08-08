@@ -1,7 +1,7 @@
 # WeChat Forensic Pro — 核心 Skill 清单
 
 > **项目**: WeChat Forensic Extractor Pro
-> **版本**: 2.0.3
+> **版本**: 2.0.8
 > **类型**: 跨平台司法取证工具(WeChat 聊天记录位对位提取 + 哈希校验 + Chain of Custody)
 > **协议**: MIT(代码) + end-use 约束(行为)
 > **合规**: ISO/IEC 27037:2012 · ISO/IEC 27042:2015 · RFC 3227 · NIST SP 800-86

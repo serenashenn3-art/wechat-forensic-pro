@@ -2,6 +2,21 @@
 
 ## [Unreleased]
 
+### 新增 (ChatViewer — 已解密 db 选择性消息导出)
+- **新模块 `wechat_forensic/chatview.py`**: 读取用户**已解密**的明文 sqlite
+  (不包含任何密钥推导 / SQLCipher 解密代码, 传入加密 db 时拒绝处理),
+  自动识别 Android / PC / iOS 三种 schema, 列出联系人 (wxid + 昵称 + 备注),
+  按勾选导出消息, 逐文件 SHA-256 + manifest。解决"全量导出体积过大"问题。
+- **CLI 新增 `--chatview <db>` / `--authorization <依据>` / `--select <spec>`**:
+  `--authorization` 必填并写入 manifest 留痕; `--select` 支持编号 `1,3,5-8`
+  或 wxid `wxid_a,wxid_b`, 留空则交互式勾选。
+- **只读打开** (sqlite uri `mode=ro`): 源 db 在 list/export 前后 SHA-256 不变。
+- **加密 db 拒绝**: 传入仍加密的 db 时抛 `EncryptedDatabaseError` 并提示用合规
+  鉴定工具解密, 本工具不提供解密能力 (AGENTS.md § 法律红线)。
+- **新增测试** `tests/test_chatview.py` (10 用例): schema 探测 / 联系人列表 /
+  导出+哈希 / 选择语法 / 加密拒绝 / 未知 schema / 文件缺失 / 只读不变 / 授权留痕,
+  测试总数 71 → 81。
+
 ### 修复 (macOS 适配 + CLI 健壮性)
 - **修复 macOS 原生微信无法识别**: `locator.py` 现在能识别沙盒版本目录
   (如 `2.0b4.0.9/Avatar/KeyValue/MMappedKV/...`), 自动发现微信数据
@@ -11,8 +26,14 @@
   macOS 沙盒结构、非法目录过滤, 测试总数 66 → 71
 - **适配 `scripts/verify.sh`**: macOS 默认使用 `python3` 而非 `python`
 
+### 改进 (版本号一致性)
+- **统一 skills/ 版本号**: `skills/manifest.json`、`skills/SKILL.md`、
+  `skills/openclaw/SKILL.md`、`skills/hermes/SKILL.md` 之前残留 `2.0.3`,
+  现统一为 `2.0.8`,与 `wechat_forensic/__init__.py` / `pyproject.toml` 一致
+
 ### 验证
-- 71/71 pytest 通过
+- 81/81 pytest 通过
+- `wechat-forensic --chatview <已解密db> --authorization <依据> --select 1` 端到端通过
 - macOS 上 `wechat-forensic --mode quick --no-interactive` 可自动发现微信数据
 - `bash scripts/verify.sh` 全 OK
 

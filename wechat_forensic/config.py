@@ -36,9 +36,9 @@ Android - /Android/data/ 路径
 EnMicroMsg.db 加密
   算法: SQLCipher (AES-256-CBC) + 自定义密钥派生
   密钥: MD5(IMEI + UIN)[0:7]  (IMEI 通常为 32 位 MD5 取前 7 位)
-  本工具: 仅做位对位提取,不包含解密逻辑
-  解密参考: wechat-dbcracker / wxsqlcipher 项目
-  法律注意: 解密他人微信数据仍需合法授权
+  本工具: 仅做位对位提取,不包含解密逻辑。
+  法律注意: 解密他人微信数据仍需合法授权。AGENTS.md 禁止本工具
+  协助任何未经授权的解密或提取行为。
 """
 
 from dataclasses import dataclass, field

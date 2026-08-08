@@ -10,11 +10,11 @@
 [![License](https://img.shields.io/badge/license-MIT%20%2B%20end--use%20restrictions-orange)]()
 [![AGENTS.md](https://img.shields.io/badge/AGENTS.md-compatible-purple)]()
 [![ISO 27037](https://img.shields.io/badge/compliance-ISO%2FIEC%2027037-informational)]()
-[![Tests](https://img.shields.io/badge/tests-71%20passed-brightgreen)]()
+[![Tests](https://img.shields.io/badge/tests-93%20passed-brightgreen)]()
 
-> **Latest**: v2.0.8 — README upgraded with TOC + collapsible legal notice + redacted sample report; v2.0.6 / v2.0.7 backlog releases consolidated. See [CHANGELOG.md](CHANGELOG.md) for the full history of v2.0.3 → v2.0.8.
+> **Latest**: v2.0.8 — Adds ChatViewer selective extraction (parse contacts first, then export only selected subjects), A/B authorization audit trail, and compatibility with legacy WeChat directory layouts and database column names; README upgraded with TOC + collapsible legal notice + redacted sample report; v2.0.6 / v2.0.7 backlog releases consolidated. See [CHANGELOG.md](CHANGELOG.md) for the full history of v2.0.3 → v2.0.8.
 
-![WeChat Forensic Pro Overview](assets/diagrams/overview.svg)
+![WeChat Forensic Pro Overview](assets/diagrams/overview.jpg)
 
 ---
 

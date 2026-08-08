@@ -74,3 +74,29 @@ def test_is_macos_wechat_version_dir_rejects_non_version_names(stub_logger, tmp_
 
     loc = Locator(stub_logger)
     assert loc._is_macos_wechat_version_dir(d) is False
+
+
+def test_scan_wechat_dir_finds_legacy_account_dir(stub_logger, tmp_path):
+    """老版非 wxid_ 开头账号目录: Tencent Files/QQ号/MicroMsg.db"""
+    src = tmp_path / "zhangsan_123"
+    src.mkdir()
+    (src / "Msg").mkdir()
+    db = src / "Msg" / "MicroMsg.db"
+    db.write_bytes(b"mock sqlite header")
+
+    loc = Locator(stub_logger)
+    found = loc._scan_wechat_dir(str(tmp_path))
+
+    assert len(found) == 1
+    assert found[0]["wxid"] == "zhangsan_123"
+    assert found[0]["msg"] == str(src / "Msg")
+
+
+def test_looks_like_pc_account_dir_recognizes_markers(stub_logger, tmp_path):
+    """_looks_like_pc_account_dir 通过内部子目录/文件识别老版目录"""
+    d = tmp_path / "legacy_account"
+    d.mkdir()
+    (d / "FileStorage").mkdir()
+
+    loc = Locator(stub_logger)
+    assert loc._looks_like_pc_account_dir(d) is True
