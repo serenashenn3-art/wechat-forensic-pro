@@ -14,7 +14,7 @@
 
 > **Latest**: v2.0.8 — Adds ChatViewer selective extraction (parse contacts first, then export only selected subjects), A/B authorization audit trail, and compatibility with legacy WeChat directory layouts and database column names; README upgraded with TOC + collapsible legal notice + redacted sample report; v2.0.6 / v2.0.7 backlog releases consolidated. See [CHANGELOG.md](CHANGELOG.md) for the full history of v2.0.3 → v2.0.8.
 
-![WeChat Forensic Pro Overview](assets/diagrams/overview-v2.0.8.jpg)
+![WeChat Forensic Pro Overview](assets/diagrams/overview.jpg)
 
 ---
 
